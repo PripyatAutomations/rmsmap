@@ -33,3 +33,9 @@ div#rms-map {
 ul {
    font: fixed;
 }
+
+.right {
+   position: float;
+   right: 1em;
+   top: 2.5em;
+}

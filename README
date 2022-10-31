@@ -16,3 +16,8 @@ This folder contains a few auto-generated data files that may be useful:
  [scripts] - Used to generate these
 	rmslist2map		perl script to convert 'pat rmslist' to KML or geojson
 	www-rmslists		bash script to generate all the kml/geojson files as appropriate
+
+
+There's some web bits to display a map using Leaflet and friends.
+
+For now we use openstreetmap but will eventually release a small basemap in dark mode for offline use.
