@@ -1,6 +1,6 @@
 #!/bin/bash
 R2M=/opt/remotepi/bin/rmslist2map
-WWW=/opt/remotepi/www/winlink/
+WWW=/opt/remotepi/www/rmsmap/
 
 for i in geojson kml; do
    for j in all ardop packet vara; do
