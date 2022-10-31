@@ -1,5 +1,5 @@
 #!/bin/bash
-R2M=/opt/remotepi/bin/rmslist2map
+R2M=/opt/remotepi/www/rmsmap/rmslist2map
 WWW=/opt/remotepi/www/rmsmap/
 
 for i in geojson kml; do

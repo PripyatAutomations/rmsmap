@@ -54,6 +54,6 @@ $(document).ready(function() {
    update_kml(kml_file, map);
    // scale the map to fit all nodes
    // XXX: make this a toggle
-   const bounds = activekmlLayer.getBounds();
-   map.fitBounds(bounds);
+//   const bounds = activekmlLayer.getBounds();
+//   map.fitBounds(bounds);
 });
