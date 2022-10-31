@@ -1,0 +1,18 @@
+This folder contains a few auto-generated data files that may be useful:
+
+
+ [KML] - For google earth and friends
+ 	rms-all.kml		All RMS (winlink) nodes
+	rms-ardop.kml		ARDOP winlink nodes
+	rms-packet.kml		Packet winlink nodes
+	rms-vara.kml		VARA winlink nodes (including VARA FM)
+
+ [geojson] - For gridtracker and such
+	rms-all.json
+	rms-ardop.json
+	rms-packet.json
+	rms-vara.json
+
+ [scripts] - Used to generate these
+	rmslist2map		perl script to convert 'pat rmslist' to KML or geojson
+	www-rmslists		bash script to generate all the kml/geojson files as appropriate

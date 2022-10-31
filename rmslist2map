@@ -1,0 +1,286 @@
+#!/usr/bin/perl -w
+use strict;
+use warnings;
+sub maidenhead2latlong;
+sub freq2band;
+
+my $show_mode;			# Modes to show in rmslist
+my $output_type = "xml";	# geojson or xml output by default?
+
+##### XXX Figure out if pat-winlink or pat is appropriate binary name to call:
+# debian calls it pat-winlink
+my $PATPATH ='pat-winlink';
+#my $PATPATH = 'pat';
+
+my $color_160m = '#ff0000';
+my $color_80m =  '#00ff00';
+my $color_60m =  '#a0c0ff';
+my $color_40m =  '#0000ff';
+my $color_30m =  '#cc00ff';
+my $color_20m =  '#aa0000';
+my $color_17m =  '#00aa00';
+my $color_15m =  '#0000aa';
+my $color_12m =  '#aa00aa';
+my $color_10m =  '#aaaa00';
+my $color_6m =   '#00aaaa';
+my $color_2m =   '#ffaa00';
+my $color_70cm = '#ff00aa';
+
+########################
+# commandline handling #
+########################
+my $num_args = $#ARGV + 1;
+
+if ($num_args >= 2) {
+   $output_type = lc($ARGV[0]);
+   $show_mode = uc($ARGV[1]);
+} elsif ($num_args == 1) {
+   $output_type = "geojson";
+   $show_mode = uc($ARGV[0]);
+} else {
+   print "usage: rmlist2map <format> <mode>\n";
+   print "       rmlist2map <mode>\n";
+   print "       http://github.com/PripyatAutomations/remotepi\n";
+   print "\n";
+   print "Converts the pat rmslist to geojson or xml for use in mapping software.\n";
+   print "\t<format>\tgeojson or kml (Default: $output_type)\n";
+   print "\t<mode>  \tdesired mode or ALL\n";
+   exit 1;
+}
+
+######
+my $output;
+
+if (!($show_mode =~ m/^ALL/)) {
+   $output = `$PATPATH rmslist -m $show_mode`;
+} else {
+   $output = `$PATPATH rmslist`;
+}
+
+my @output = split('\n', $output);
+my $lines_total = scalar @output;
+
+# stats
+my $lines = 0;
+my $valid_nodes = 0;
+
+# header
+if ($output_type =~ m/^geojson/i) {
+   print "{\n";
+   print "   \"type\": \"FeatureCollection\", \n";
+   print "   \"features\": [\n";
+} elsif ($output_type =~ m/^kml/i) {
+#   #
+   print "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+   print "<kml xmlns=\"http://www.opengis.net/kml/2.2\">\n";
+   print "<Document>\n";
+   print " <name>RMS nodes reachable via $show_mode</name>\n";
+}
+
+foreach my $line (@output) {
+   my $last_node = 0;
+   $lines++;
+# callsign  [gridsq] dist    Az mode(s)              dial freq    center freq url
+# 4X3MGD    [KM72NO] 9763    49 VARA              3.611.50 MHz   3.613.00 MHz varahf:///4X3MGD?bw=2300&freq=3611.5
+# ZS6JDE/ KG44DF/ 13458/ 100/ Pactor 1,2,3     / 21.117.90 MHz/ 21.117.90 MHz/  <nil>/
+
+   if ($lines == $lines_total) {
+      $last_node = 1;
+   }
+
+   if ($line =~ m/^(.+?)\W+\[(.+?)\]\W+(\d+)\W+(\d+)\W+(.*?)(\d+\.\d+.\d+\.\d+) MHz\W+(\d+\.\d+.\d+\.\d+) MHz(.*)$/)  {
+      $valid_nodes++;
+      my $callsign = $1;
+      my $gridsquare = $2;
+      my $dist = $3;
+      my $azimuth = $4;
+      my $mode = $5;
+      my $freq = $6;
+      my $center_freq = $7;
+      my $url = $8;
+      my @coords = maidenhead2latlong($gridsquare);
+
+      $mode =~ s/^\s*(.*?)\s*$/$1/;
+      $url =~ s/^\s*(.*?)\s*$/$1/;
+      $freq =~ s/\.//;
+      $center_freq =~ s/\.//;
+      my $band = freq2band($freq);
+      my $color;
+
+      if ($band eq "160M") { $color = $color_160m; }
+      if ($band eq "80M") { $color = $color_80m; }
+      if ($band eq "60M") { $color = $color_60m; }
+      if ($band eq "40M") { $color = $color_40m; }
+      if ($band eq "30M") { $color = $color_30m; }
+      if ($band eq "20M") { $color = $color_20m; }
+      if ($band eq "17M") { $color = $color_17m; }
+      if ($band eq "15M") { $color = $color_15m; }
+      if ($band eq "12M") { $color = $color_12m; }
+      if ($band eq "10M") { $color = $color_10m; }
+      if ($band eq "6M") { $color = $color_6m; }
+      if ($band eq "2M") { $color = $color_2m; }
+      if ($band eq "70CM") { $color = $color_70cm; }
+
+      if ($output_type =~ m/^geojson/i) {
+         # Dump the entry
+         print "      {\n";
+         print "        \"type\": \"Feature\",\n";
+         print "        \"geometry\": {\n";
+         print "           \"type\": \"point\",\n";
+# flip lat/long for geojson's backwardsness...
+         print "           \"coordinates\": [" . $coords[1] . ", " . $coords[0] . "]\n";
+         print "        },\n";
+         print "        \"properties\": {\n";
+         print "           \"n\": \"$callsign ($mode) $freq\",\n";
+         print "           \"name\": \"$callsign ($mode) $freq\",\n";
+         print "           \"callsign\": \"$callsign\",\n";
+         print "           \"frequency\": \"$freq\",\n";
+         print "           \"band\": \"$band\",\n";
+         print "           \"center_frequency\": \"$center_freq\",\n";
+         print "           \"mode\": \"$mode\",\n";
+         print "           \"azimuth\": $azimuth,\n";
+         print "           \"gridsquare\": \"$gridsquare\",\n";
+
+         # Put this last, to terminate the item without a trailing ,
+         if (!($url =~ "<nil>")) {
+            print "           \"distance\": $dist,\n";
+            print "           \"url\": \"$url\"\n";
+         } else {
+            print "           \"distance\": $dist\n";
+         }
+
+         print "        }\n";
+         if ($last_node == 1) {
+            print "      }\n";
+         } else {
+            print "      },\n";
+         }
+      } elsif ($output_type =~ m/^kml/i) {
+         my $clean_mode = $mode;
+         $clean_mode =~ s/ //;
+         print "  <Placemark id=\"$callsign-$band-$clean_mode\">\n";
+         print "   <name>$callsign $mode $band</name>\n";
+         print "   <description><![CDATA[$mode node at $callsign ($gridsquare) listening at $freq ($dist km @ $azimuth)]]></description>\n";
+         print "   <LookAt>\n";
+         print "    <latitude>" . $coords[0] . "</latitude>\n";
+         print "    <longitude>" . $coords[1] . "</longitude>\n";
+         # XXX: We need to try to figure out a way to query this from our DEMs...
+         print "    <altitude>0</altitude>\n";
+         print "    <heading>$azimuth</heading>\n";
+         print "    <tilt>0</tilt>\n";
+         print "    <altitudeMode>relativeToGround</altitudeMode>\n";
+         print "   </LookAt>\n";
+         print "   <Point>\n";
+         print "    <altitudeMode>relativeToGround</altitudeMode>\n";
+         print "    <coordinates>" . $coords[1] . "," . $coords[0] . "</coordinates>\n";
+         print "    <color>" . $color . "</color>\n";
+         print "    <band>" . $band . "</band>\n";
+         print "   </Point>\n";
+         print "  </Placemark>\n";
+      }
+   } else { # line might be invalid -- or blank, figure out which
+#      if ($line =~ m/(.+?)/) {
+#         # nothing needed..
+#      } else {
+#         print STDERR "BAD LINE: $lines: $line\n";
+#      }
+   }
+}
+
+# footer
+if ($output_type eq 'geojson') {
+   print "   ]\n";
+   print "}\n";
+} elsif ($output_type =~ m/^kml/i) {
+   print " </Document>\n";
+   print "</kml>\n";
+}
+
+print STDERR "Processed $lines lines and found $valid_nodes available nodes\n";
+
+########
+# XXX: This needs replaced, It's not very accurate...
+# # maidenhead - 6 character locator
+# created by scruss/VA3PID on 02011/04/01 (http://glaikit.org/2011/04/02/maidenhead-grid-locator-in-perl/)
+# RCS/CVS: $Id: maidenhead,v 1.3 2011/04/03 11:04:38 scruss Exp $
+sub maidenhead2latlong {
+  # convert a Maidenhead Grid location (eg FN03ir)
+  #  to decimal degrees
+  # this code could be cleaner/shorter/clearer
+  my @locator = split(//, uc(shift));    # convert arg to upper case array
+  my $lat      = 0;
+  my $long     = 0;
+  my $latdiv   = 0;
+  my $longdiv  = 0;
+  my @divisors = (72000, 36000, 7200, 3600, 300, 150);                          # long,lat field size in seconds
+  my $max = ($#locator > $#divisors) ? $#divisors : $#locator;
+
+  for (my $i = 0 ; $i <= $max ; $i++) {
+    if (int($i / 2) % 2) {    # numeric
+      if ($i % 2) {             # lat
+        $latdiv = $divisors[$i];    # save for later
+        $lat += $locator[$i] * $latdiv;
+      }
+      else {                        # long
+        $longdiv = $divisors[$i];
+        $long += $locator[$i] * $longdiv;
+      }
+    }
+    else {                          # alpha
+      my $val = ord($locator[$i]) - ord('A');
+      if ($i % 2) {               # lat
+        $latdiv = $divisors[$i];    # save for later
+        $lat += $val * $latdiv;
+      }
+      else {                        # long
+        $longdiv = $divisors[$i];
+        $long += $val * $longdiv;
+      }
+    }
+  }
+  $lat  += ($latdiv / 2);         # location of centre of square
+  $long += ($longdiv / 2);
+
+  my @result = ((($lat / 3600) - 90, ($long / 3600) - 180));
+  return @result;
+}
+
+sub freq2band {
+  my $infreq = shift(@_);
+  if ($infreq >= 1800 && $infreq <= 2000) {
+    return "160M";
+  } elsif ($infreq >= 3500 && $infreq <= 4000) {
+    return "80M";
+  } elsif ($infreq >= 5000 && $infreq <= 5500) {
+    return "60M";
+  } elsif ($infreq >= 7000 && $infreq <= 7300) {
+    return "40M";
+  } elsif ($infreq >= 10100 && $infreq <= 10150) {
+    return "30M";
+  } elsif ($infreq >= 10151 && $infreq <= 13999) {
+    return "OOB30M";
+  } elsif ($infreq >= 14000 && $infreq <= 14350) {
+    return "20M";
+  } elsif ($infreq >= 18068 && $infreq <= 18168) {
+    return "17M";
+  } elsif ($infreq >= 21000 && $infreq <= 21450) {
+    return "15M";
+  } elsif ($infreq >= 24890 && $infreq <= 24990) {
+    return "12M";
+  } elsif ($infreq >= 28000 && $infreq <= 29700) {
+    return "10M";
+  } elsif ($infreq >= 50000 && $infreq <= 54000) {
+    return "6M";
+  } elsif ($infreq >= 144000 && $infreq <= 148000) {
+    return "2M";
+  } elsif ($infreq >= 219000 && $infreq <= 225000) {
+    return "1.25M";
+  } elsif ($infreq >= 420000 && $infreq <= 450000) {
+    return "70CM";
+  } elsif ($infreq >= 902000 && $infreq <= 928000) {
+    return "33CM";
+  } elsif ($infreq >= 1240000 && $infreq <= 1300000) {
+    return "23CM";
+  }
+  return "UNKNOWN";
+}

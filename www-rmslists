@@ -1,0 +1,17 @@
+#!/bin/bash
+R2M=/opt/remotepi/bin/rmslist2map
+WWW=/opt/remotepi/www/winlink/
+
+for i in geojson kml; do
+   for j in all ardop packet vara; do
+      echo "* Generating ${i} for ${j}"
+      if [ "${i}" == "geojson" ]; then
+         ${R2M} ${i} ${j} > ${WWW}/rms-${j}.json
+      else
+         ${R2M} ${i} ${j} > ${WWW}/rms-${j}.${i}
+      fi
+   done
+done
+
+
+#for i in *.kml; do zip $i.zip $i; done

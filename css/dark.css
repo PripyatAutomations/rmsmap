@@ -1,0 +1,35 @@
+html, body {
+    background: black;
+    color: #a0a0a0;
+}
+
+a, a:hover, a:visited, a:active {
+    color: #a0a000;
+    text-decoration: underline;
+}
+
+div#linkswrap {
+   z-index: 100000000;
+}
+
+div#links {
+   border: 2px solid #999999;
+   position: fixed;
+   left: 1.5em;
+   top: 2em;
+   z-index: 100000000;
+   background: black;
+}
+
+div#rms-map {
+   position: absolute;
+   top: 2.5em;
+   left: 0.5em;
+   border: 2px solid #a0a0a0;
+   height: CALC(100% - 3em);
+   width: CALC(100% - 0.7em);
+}
+
+ul {
+   font: fixed;
+}

@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+ <head>
+  <title>RMS (Winlink) Node map</title>
+  <!-- we need an asset loader? ;) -->
+  <link href="./leaflet/leaflet.css" rel="stylesheet"/>
+  <link href="css/dark.css" rel="stylesheet"/>
+  <link href="css/fontawesome.min.css" rel="stylesheet"/>
+  <link href="css/leaflet.awesome-markers.css" rel="stylesheet"/>
+  <link href="css/ionicons.min.css" rel="stylesheet"/>
+  <script src="js/jquery.min.js"></script>
+  <script src="js/fontawesome.min.js"></script>
+  <script src="leaflet/leaflet.js"></script>
+  <script src="js/leaflet.awesome-markers.js"></script>
+  <script src="js/L.KML.js"></script>
+<!--  <script src="js/zip-fs-full.min.js"></script> -->
+  <script src="js/rmsmap.js"></script>
+ </head>
+ <body>
+  <div id="linkswrap">
+   <a href="#" id="toggle_links">[downloads]</a>&nbsp;
+   <select id="mode" name="mode">
+    <option value="all">ALL</option>
+    <option value="ardop" selected>ARDOP</option>
+    <option value="packet">Packet</option>
+    <option value="vara">VARA</option>
+   </select>
+   <input type="text" id="jumpcoord" length="128" placeholder="Jump-to location"/>
+   <input type="button" id="jumpbutton" value="Go"/><br/>
+   <div id="links">
+    <ul>
+     <li><a href="README">README</a></li>
+     <li>ALL&nbsp;&middot;
+      <a href="rms-all.json.gz">json</a>&middot;
+      <a href="rms-all.kml.gz">kml</a>&middot;
+     </li>
+     <li>ARDOP&nbsp;&middot;
+      <a href="rms-ardop.json.gz">json</a>&middot;
+      <a href="rms-ardop.kml.gz">kml</a>&middot;
+     </li>
+     <li>Packet&nbsp;&middot;
+      <a href="rms-packet.json.gz">json</a>&middot;
+      <a href="rms-packet.kml.gz">kml</a>&middot;
+     </li>
+     <li>VARA&nbsp;&middot;
+      <a href="rms-vara.json.gz">json</a>&middot;
+      <a href="rms-vara.kml.gz">kml</a></li>&middot;
+      Scripts<br/>
+     <li><a href="rmslist2map">rmslist2map</a></li>
+     <li><a href="www-rmslists">www-rmslists</a></li>
+   </div>
+  </div>
+  <div id="rms-map"></div>
+ </body>
+</html>
