@@ -80,6 +80,7 @@ if ($output_type =~ m/^geojson/i) {
 foreach my $line (@output) {
    my $last_node = 0;
    $lines++;
+   my $color = "blue";
 # callsign  [gridsq] dist    Az mode(s)              dial freq    center freq url
 # 4X3MGD    [KM72NO] 9763    49 VARA              3.611.50 MHz   3.613.00 MHz varahf:///4X3MGD?bw=2300&freq=3611.5
 # ZS6JDE/ KG44DF/ 13458/ 100/ Pactor 1,2,3     / 21.117.90 MHz/ 21.117.90 MHz/  <nil>/
@@ -105,21 +106,20 @@ foreach my $line (@output) {
       $freq =~ s/\.//;
       $center_freq =~ s/\.//;
       my $band = freq2band($freq);
-      my $color;
 
-      if ($band eq "160M") { $color = $color_160m; }
-      if ($band eq "80M") { $color = $color_80m; }
-      if ($band eq "60M") { $color = $color_60m; }
-      if ($band eq "40M") { $color = $color_40m; }
-      if ($band eq "30M") { $color = $color_30m; }
-      if ($band eq "20M") { $color = $color_20m; }
-      if ($band eq "17M") { $color = $color_17m; }
-      if ($band eq "15M") { $color = $color_15m; }
-      if ($band eq "12M") { $color = $color_12m; }
-      if ($band eq "10M") { $color = $color_10m; }
-      if ($band eq "6M") { $color = $color_6m; }
-      if ($band eq "2M") { $color = $color_2m; }
-      if ($band eq "70CM") { $color = $color_70cm; }
+      if ($band =~ m/^"160M"/) { $color = $color_160m; }
+      elsif ($band =~ m/^"80M"/) { $color = $color_80m; }
+      elsif ($band =~ m/^"60M"/) { $color = $color_60m; }
+      elsif ($band =~ m/^"40M"/) { $color = $color_40m; }
+      elsif ($band =~ m/^"30M"/) { $color = $color_30m; }
+      elsif ($band =~ m/^"20M"/) { $color = $color_20m; }
+      elsif ($band =~ m/^"17M"/) { $color = $color_17m; }
+      elsif ($band =~ m/^"15M"/) { $color = $color_15m; }
+      elsif ($band =~ m/^"12M"/) { $color = $color_12m; }
+      elsif ($band =~ m/^"10M"/) { $color = $color_10m; }
+      elsif ($band =~ m/^"6M"/) { $color = $color_6m; }
+      elsif ($band =~ m/^"2M"/) { $color = $color_2m; }
+      elsif ($band =~ m/^"70CM"/) { $color = $color_70cm; }
 
       if ($output_type =~ m/^geojson/i) {
          # Dump the entry
@@ -173,7 +173,7 @@ foreach my $line (@output) {
          print "   <Point>\n";
          print "    <altitudeMode>relativeToGround</altitudeMode>\n";
          print "    <coordinates>" . $coords[1] . "," . $coords[0] . "</coordinates>\n";
-         print "    <color>" . $color . "</color>\n";
+#         print "    <color>" . $color . "</color>\n";
          print "    <band>" . $band . "</band>\n";
          print "   </Point>\n";
          print "  </Placemark>\n";
