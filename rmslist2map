@@ -18,16 +18,16 @@ my $color_60m =  'orange';
 my $color_40m =  'green';
 my $color_30m =  'darkgreen';
 my $color_20m =  'blue';
-my $color_17m =  'purple';
+my $color_17m =  'lightblue';
 my $color_15m =  'darkpurple';
 my $color_12m =  'cadetblue';
 my $color_10m =  'yellow';
-my $color_6m =   'red';
-my $color_2m =   'green';
+my $color_6m =   'beige';
+my $color_2m =   'pink';
 my $color_1_25m = 'purple';
 my $color_70cm = 'orange';
-my $color_unknown = 'darkgrey';
-my $color_30moob = 'lightgrey';
+my $color_unknown = 'black';
+my $color_30moob = 'lightgray';
 
 ########################
 # commandline handling #
