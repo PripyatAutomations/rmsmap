@@ -25,6 +25,7 @@ my $color_10m =  'yellow';
 my $color_6m =   'red';
 my $color_2m =   'green';
 my $color_70cm = 'orange';
+my $color_unknown = 'darkgrey';
 
 ########################
 # commandline handling #
@@ -120,6 +121,7 @@ foreach my $line (@output) {
       elsif ($band =~ m/^"6M"/) { $color = $color_6m; }
       elsif ($band =~ m/^"2M"/) { $color = $color_2m; }
       elsif ($band =~ m/^"70CM"/) { $color = $color_70cm; }
+      else { $color = $color_unknown; }
 
       if ($output_type =~ m/^geojson/i) {
          # Dump the entry
