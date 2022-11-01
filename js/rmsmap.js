@@ -10,6 +10,7 @@ function render_rms_kml(kmltext) {
    // Create new kml overlay
    var kml = parser.parseFromString(kmltext, 'text/xml');
    var track = new L.KML(kml);
+
    map.addLayer(track);
    activekmlLayer = track;
 

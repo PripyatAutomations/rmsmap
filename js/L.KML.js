@@ -1,5 +1,6 @@
 /*!
 	Copyright (c) 2011-2015, Pavel Shramov, Bruno Bergot - MIT licence
+	Modifications to support color property in placemarks
 */
 /* from https://github.com/windycom/leaflet-kml/blob/master/L.KML.js */
 L.KML = L.FeatureGroup.extend({
@@ -109,7 +110,6 @@ L.Util.extend(L.KML, {
 					} else if (key === 'Icon') {
 						ioptions = _parse(e);
 						if (ioptions.href) { options.href = ioptions.href; }
-				                /* XXX: Mode Icon here */
 					} else if (key === 'href') {
 						options.href = value;
 					}
@@ -211,6 +211,7 @@ L.Util.extend(L.KML, {
                    for (f = 0; f < bd.length; f++) {
                        if (bd[f].childNodes[0] !== undefined)
                           var band = bd[f].childNodes[0].nodeValue;
+                          opts['band'] = band;
                    }
                 }
 
@@ -218,10 +219,9 @@ L.Util.extend(L.KML, {
                    for (f = 0; f < cd.length;f++) {
                        if (cd[f].childNodes[0] !== undefined)
                           var color = cd[f].childNodes[0].nodeValue;
-                          opts.markerColor = color;
+                          opts['markerColor'] = color;
                    }
                 }
-//                console.log("Band: " + band + ", Color: " + color);
 
 		el = place.getElementsByTagName('styleUrl');
 		for (i = 0; i < el.length; i++) {
@@ -323,6 +323,14 @@ L.Util.extend(L.KML, {
 			return;
 		}
 		var ll = el[0].childNodes[0].nodeValue.split(',');
+		/* Fix up colors and band symbols */
+		var modesymbol = 'star';
+
+		options.icon = new L.AwesomeMarkers.icon({
+			icon: modesymbol,
+			iconColor: 'white',
+			markerColor: options.markerColor
+		});
 		return new L.KMLMarker(new L.LatLng(ll[1], ll[0]), options);
 	},
 
@@ -462,17 +470,7 @@ L.KMLIcon = L.Icon.extend({
 });
 
 L.KMLMarker = L.Marker.extend({
-/*
-	options: {
-		icon: new L.KMLIcon.Default()
-		icon:  L.AwesomeMarkers.icon({
-//			icon: 'mail-unread',
-			icon: 'star',
-			iconColor: 'white',
-   			markerColor: this.markerColor
-		})
-	}
-*/
+    /* */
 });
 
 // Inspired by https://github.com/bbecquet/Leaflet.PolylineDecorator/tree/master/src
