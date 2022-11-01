@@ -12,19 +12,19 @@ my $output_type = "xml";	# geojson or xml output by default?
 my $PATPATH ='pat-winlink';
 #my $PATPATH = 'pat';
 
-my $color_160m = '#ff0000';
-my $color_80m =  '#00ff00';
-my $color_60m =  '#a0c0ff';
-my $color_40m =  '#0000ff';
-my $color_30m =  '#cc00ff';
-my $color_20m =  '#aa0000';
-my $color_17m =  '#00aa00';
-my $color_15m =  '#0000aa';
-my $color_12m =  '#aa00aa';
-my $color_10m =  '#aaaa00';
-my $color_6m =   '#00aaaa';
-my $color_2m =   '#ffaa00';
-my $color_70cm = '#ff00aa';
+my $color_160m = 'red';
+my $color_80m =  'darkred';
+my $color_60m =  'orange';
+my $color_40m =  'green';
+my $color_30m =  'darkgreen';
+my $color_20m =  'blue';
+my $color_17m =  'purple';
+my $color_15m =  'darkpurple';
+my $color_12m =  'cadetblue';
+my $color_10m =  'yellow';
+my $color_6m =   'red';
+my $color_2m =   'green';
+my $color_70cm = 'orange';
 
 ########################
 # commandline handling #

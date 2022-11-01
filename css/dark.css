@@ -39,3 +39,8 @@ ul {
    right: 1em;
    top: 2.5em;
 }
+
+.awesome-marker i {
+   font-size: 10px;
+   margin-top: 8px;
+}

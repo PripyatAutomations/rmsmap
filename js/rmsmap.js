@@ -32,6 +32,8 @@ $(document).ready(function() {
    base_layer = new L.TileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
    map.addLayer(base_layer);
 
+//  ionicons webfont
+//   L.AwesomeMarkers.Icon.prototype.options.prefix = 'ion';
    // menu
    $('a#toggle_links').click(function(e) {
       $('div#links').toggle();

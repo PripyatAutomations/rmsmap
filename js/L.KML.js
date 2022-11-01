@@ -101,14 +101,18 @@ L.Util.extend(L.KML, {
 					if(!value) {
 						continue;
 					}
+/*
 					if (key === 'color') {
 						options.opacity = parseInt(value.substring(0, 2), 16) / 255.0;
 						options.color = '#' + value.substring(6, 8) + value.substring(4, 6) + value.substring(2, 4);
-					} else if (key === 'width') {
+					} else 
+*/
+					if (key === 'width') {
 						options.weight = parseInt(value);
 					} else if (key === 'Icon') {
 						ioptions = _parse(e);
 						if (ioptions.href) { options.href = ioptions.href; }
+				                /* XXX: Mode Icon here */
 					} else if (key === 'href') {
 						options.href = value;
 					}
@@ -204,6 +208,23 @@ L.Util.extend(L.KML, {
 
 	parsePlacemark: function (place, xml, style, options) {
 		var h, i, j, k, el, il, opts = options || {};
+		var band, color, f, bd, cd;
+
+                if ((bd = place.getElementsByTagName('band')) !== null) {
+                   for (f = 0; f < bd.length; f++) {
+                       if (bd[f].childNodes[0] !== undefined)
+                          var band = bd[f].childNodes[0].nodeValue;
+                   }
+                }
+
+                if ((cd = place.getElementsByTagName('color')) !== null) {
+                   for (f = 0; f < cd.length;f++) {
+                       if (cd[f].childNodes[0] !== undefined)
+                          var color = cd[f].childNodes[0].nodeValue;
+                          opts.markerColor = color;
+                   }
+                }
+//                console.log("Band: " + band + ", Color: " + color);
 
 		el = place.getElementsByTagName('styleUrl');
 		for (i = 0; i < el.length; i++) {
@@ -446,7 +467,12 @@ L.KMLIcon = L.Icon.extend({
 
 L.KMLMarker = L.Marker.extend({
 	options: {
-		icon: new L.KMLIcon.Default()
+//		icon: new L.KMLIcon.Default()
+		icon:  L.AwesomeMarkers.icon({
+			icon: 'mail-unread',
+			iconColor: 'white',
+   			markerColor: this.markerColor
+		})
 	}
 });
 
