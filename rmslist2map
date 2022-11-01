@@ -170,6 +170,7 @@ foreach my $line (@output) {
          print "   <description><![CDATA[$mode node at $callsign ($gridsquare) listening at $freq ($dist km @ $azimuth)]]></description>\n";
          print "   <color>" . $color . "</color>\n";
          print "   <band>" . $band . "</band>\n";
+         print "   <mode>" . $mode . "</mode>\n";
          print "   <LookAt>\n";
          print "    <latitude>" . $coords[0] . "</latitude>\n";
          print "    <longitude>" . $coords[1] . "</longitude>\n";
