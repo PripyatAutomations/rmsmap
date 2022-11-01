@@ -173,7 +173,7 @@ foreach my $line (@output) {
          print "   <Point>\n";
          print "    <altitudeMode>relativeToGround</altitudeMode>\n";
          print "    <coordinates>" . $coords[1] . "," . $coords[0] . "</coordinates>\n";
-#         print "    <color>" . $color . "</color>\n";
+         print "    <color>" . $color . "</color>\n";
          print "    <band>" . $band . "</band>\n";
          print "   </Point>\n";
          print "  </Placemark>\n";

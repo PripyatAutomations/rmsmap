@@ -2,7 +2,11 @@
 R2M=/opt/remotepi/www/rmsmap/rmslist2map
 WWW=/opt/remotepi/www/rmsmap/
 
-for i in geojson kml; do
+#TARGETS=geojson kml
+TARGETS=kml
+#TARGS=geojson
+
+for i in ${TARGETS}; do
    for j in all ardop packet vara; do
       echo "* Generating ${i} for ${j}"
       if [ "${i}" == "geojson" ]; then
