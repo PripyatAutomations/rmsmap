@@ -26,8 +26,18 @@ div#rms-map {
    top: 2.5em;
    left: 0.5em;
    border: 2px solid #a0a0a0;
-   height: CALC(100% - 3em);
-   width: CALC(100% - 0.7em);
+   height: CALC(100% - 6.8em);
+   width: CALC(100% - 1.5em);
+}
+
+div#status {
+   border: 1px solid grey;
+   padding: 4px;
+   position: fixed;
+   bottom: 0em;
+   left: 0.5em;
+   height: 2em;
+   width: CALC(100% - 1.5em);
 }
 
 ul {

@@ -1,17 +1,25 @@
+<!-- created by hand with the joe text editor! -->
 <!doctype html>
-<html>
+<html lang="en">
  <head>
+  <meta charset="UTF-8">
   <title>RMS (Winlink) Node map</title>
   <!-- we need an asset loader? ;) -->
   <link href="./leaflet/leaflet.css" rel="stylesheet"/>
   <link href="css/dark.css" rel="stylesheet"/>
   <link href="css/fontawesome.min.css" rel="stylesheet"/>
-  <link href="css/leaflet.awesome-markers.css" rel="stylesheet"/>
   <link href="css/ionicons.min.css" rel="stylesheet"/>
+  <link href="css/leaflet.awesome-markers.css" rel="stylesheet"/>
+  <link href="css/Leaflet.GraphicScale.min.css" rel="stylesheet"/>
+  <link href="css/Leaflet.PolylineMeasure.css" rel="stylesheet"/>
+  <link href="css/leaflet.mousecoordinate.css" rel="stylesheet"/>
   <script src="js/jquery.min.js"></script>
   <script src="js/fontawesome.min.js"></script>
   <script src="leaflet/leaflet.js"></script>
   <script src="js/leaflet.awesome-markers.js"></script>
+  <script src="js/Leaflet.GraphicScale.min.js"></script>
+  <script src="js/Leaflet.PolylineMeasure.js"></script>
+  <script src="js/leaflet.mousecoordinate.min.js"></script>
   <script src="js/L.KML.js"></script>
 <!--  <script src="js/zip-fs-full.min.js"></script> -->
   <script src="js/rmsmap.js"></script>
@@ -55,5 +63,8 @@
    </div>
   </div>
   <div id="rms-map"></div>
+  <div id="status">
+   <code>Measurement</code><pre id="eventoutput">...</pre>
+  </div>
  </body>
 </html>
