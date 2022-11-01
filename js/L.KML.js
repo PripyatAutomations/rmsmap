@@ -355,7 +355,7 @@ L.Util.extend(L.KML, {
 		   mcolor = 'beige';
 		} else if (options.band.match('1.25M')) {
 		   mcolor = 'pink';
-		} else if (options.band.math('70CM')) {
+		} else if (options.band.match('70CM')) {
 		   mcolor = 'lightred';
 		} else if (options.band.match('OOB30M')) {
 		   mcolor = 'gray';
