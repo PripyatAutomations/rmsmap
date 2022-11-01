@@ -3,9 +3,10 @@
 <html lang="en">
  <head>
   <meta charset="UTF-8">
-  <title>RMS (Winlink) Node map</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Ham Radio Maps</title>
   <!-- we need an asset loader? ;) -->
-  <link href="./leaflet/leaflet.css" rel="stylesheet"/>
+  <link href="leaflet/leaflet.css" rel="stylesheet"/>
   <link href="css/dark.css" rel="stylesheet"/>
   <link href="css/fontawesome.min.css" rel="stylesheet"/>
   <link href="css/ionicons.min.css" rel="stylesheet"/>
@@ -13,6 +14,9 @@
   <link href="css/Leaflet.GraphicScale.min.css" rel="stylesheet"/>
   <link href="css/Leaflet.PolylineMeasure.css" rel="stylesheet"/>
   <link href="css/leaflet.mousecoordinate.css" rel="stylesheet"/>
+  <link href="css/leaflet.magnifyingglass.css" rel="stylesheet"/>
+  <link href="css/L.switchBasemap.css" rel="stylesheet"/>
+  <link href="css/Control.Loading.css" rel="stylesheet"/>
   <script src="js/jquery.min.js"></script>
   <script src="js/fontawesome.min.js"></script>
   <script src="leaflet/leaflet.js"></script>
@@ -20,51 +24,72 @@
   <script src="js/Leaflet.GraphicScale.min.js"></script>
   <script src="js/Leaflet.PolylineMeasure.js"></script>
   <script src="js/leaflet.mousecoordinate.min.js"></script>
+  <script src="js/leaflet.magnifyingglass.js"></script>
+  <script src="js/L.switchBasemap.js"></script>
   <script src="js/L.KML.js"></script>
+  <script src="js/Control.Loading.css"></script>
 <!--  <script src="js/zip-fs-full.min.js"></script> -->
   <script src="js/rmsmap.js"></script>
  </head>
  <body>
   <div id="linkswrap">
-   <a href="#" id="toggle_links">[downloads]</a>&nbsp;&middot;
-   <a href="https://github.com/PripyatAutomations/rmsmap">&lt;github&gt;</a>
-   <label for="mode">Mode</label>
-   <select id="mode" name="mode">
-    <option value="all">ALL</option>
-    <option value="ardop" selected>ARDOP</option>
-    <option value="packet">Packet</option>
-    <option value="vara">VARA</option>
+   <a href="#" id="toggle_links">[menu]</a>
+   <select id="mode">
+    <option value="rms-all">RMS-ALL</option>
+    <option value="rms-ardop" selected>RMS-ARDOP</option>
+    <option value="rms-packet">RMS-Packet</option>
+    <option value="rms-vara">RMS-VARA</option>
+    <option value="fmrepeater">FM Repeater</option>
+    <option value="beacons">Beacons</option>
+    <option value="shortwave">Shortwave Bcast</option>
+    <option value="wsjtx">wsjt-x</option>
    </select>
-   <input type="text" id="jumpcoord" length="128" placeholder="Jump-to location"/>
-   <input type="button" id="jumpbutton" value="Go"/>
-   
+   <input type="text" id="myqth" length="24" placeholder="QTH"/>
+   <input type="button" id="setqth" value="Set"/>
    <br/>
    <div id="links">
     <ul>
-     <li><a href="README">README</a></li>
+     <hr/>
+     Links
+     <hr/>
+     <li><a href="http://github.com/PripyatAutomations/rmsmap">&lt;github&gt;</a></li>
+     <hr/>
+     Datasets
+     <hr/>
      <li>ALL&nbsp;&middot;
       <a href="rms-all.json.gz">json</a>&middot;
-      <a href="rms-all.kml.gz">kml</a>&middot;
+      <a href="rms-all.kml.gz">kml</a>
      </li>
      <li>ARDOP&nbsp;&middot;
       <a href="rms-ardop.json.gz">json</a>&middot;
-      <a href="rms-ardop.kml.gz">kml</a>&middot;
+      <a href="rms-ardop.kml.gz">kml</a>
      </li>
      <li>Packet&nbsp;&middot;
       <a href="rms-packet.json.gz">json</a>&middot;
-      <a href="rms-packet.kml.gz">kml</a>&middot;
+      <a href="rms-packet.kml.gz">kml</a>
      </li>
      <li>VARA&nbsp;&middot;
       <a href="rms-vara.json.gz">json</a>&middot;
-      <a href="rms-vara.kml.gz">kml</a></li>&middot;
-      Scripts<br/>
+      <a href="rms-vara.kml.gz">kml</a>
+     </li>
+     <hr/>
+     Scripts
+     <hr/>
      <li><a href="rmslist2map">rmslist2map</a></li>
      <li><a href="www-rmslists">www-rmslists</a></li>
+     <hr/>
+     Settings
+     <hr/>
+     <label for="autozoom">Autozoom?</label>
+     <input type="checkbox" id="autozoom" checked/>
+    </ul>
    </div>
   </div>
   <div id="rms-map"></div>
   <div id="status">
-   <code>Measurement</code><pre id="eventoutput">...</pre>
+   <code>Measurement: </code><br/>
+   <code>
+   Showing <span id="t_mode">*</span> on <span id="t_band">*</span> at <span id="t_zoom">*</span> zoom</code>
   </div>
  </body>
 </html>

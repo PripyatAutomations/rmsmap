@@ -1,0 +1,37 @@
+<div id="help">
+<input type="button" onclick="$('div#help').hide(); return false;"/>
+<input type="checkbox" id="showhelp" checked/><br/>
+<label for="showhelp">Show help on start?</label><br/>
+<script>
+ $('input#showhelp').change(function() {
+     // update show_help (from js/rmsmap.js) appropriately
+ });
+</script>
+<pre id="helptext">
+MAP HELP
+--------
+
+[Icons]
+  +         Zoom In
+  -         Zoom Out
+  |->       Measure a route
+  X         Stop/clear route
+  km/mi/nm  Set unit
+
+[Mouse]
+  * Right click - Hide/show magnifier
+     - L.Click: Toggle markers (NYI)
+  * Zoom: Double click point of interest or use scrollwheel
+
+[Touch]
+  * Normal touch squeeze/stretch/pan controls
+
+[Keyboard]
+  * Pan/Zoom *
+  Arrow Keys	Pan
+  + / -	   	Zoom
+
+  * Measuring *
+  ESC		End route
+</pre>
+<div>

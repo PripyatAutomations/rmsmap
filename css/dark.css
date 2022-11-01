@@ -3,6 +3,14 @@ html, body {
     color: #a0a0a0;
 }
 
+* {
+    user-select: none; 
+}
+
+input {
+   user-select: text;
+}
+
 a, a:hover, a:visited, a:active {
     color: #a0a000;
     text-decoration: underline;
@@ -19,6 +27,7 @@ div#links {
    top: 2em;
    z-index: 100000000;
    background: black;
+   display: none;
 }
 
 div#rms-map {
@@ -38,6 +47,10 @@ div#status {
    left: 0.5em;
    height: 2em;
    width: CALC(100% - 1.5em);
+}
+
+div#help {
+   display: none;
 }
 
 ul {
