@@ -362,7 +362,7 @@ L.Util.extend(L.KML, {
 		} else
 		   mcolor = 'black';
 
-		options.icon = new L.AwesomeMarkers.icon({
+		options.icon = L.AwesomeMarkers.icon({
 			icon: modesymbol,
 			iconColor: 'white',
 			markerColor: mcolor
