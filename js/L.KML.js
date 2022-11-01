@@ -323,13 +323,49 @@ L.Util.extend(L.KML, {
 			return;
 		}
 		var ll = el[0].childNodes[0].nodeValue.split(',');
-		/* Fix up colors and band symbols */
+// beige black blue cadetblue darkblue darkgreen
+// darkpurple darkred gray green lightblue lightgray
+// lightgreen lightred orange pink purple red white 
+// yellow
 		var modesymbol = 'star';
+		var mcolor;
+		if (options.band.match('160M')) {
+		   mcolor = 'darkred';
+		} else if (options.band.match('80M')) {
+		   mcolor = 'darkpurple';
+		} else if (options.band.match('60M')) {
+		   mcolor = 'darkblue';
+		} else if (options.band.match('40M')) {
+		   mcolor = 'darkgreen';
+		} else if (options.band.match('30M')) {
+		   mcolor = 'purple';
+		} else if (options.band.match('20M')) {
+		   mcolor = 'green';
+		} else if (options.band.match('17M')) {
+		   mcolor = 'orange';
+		} else if (options.band.match('15M')) {
+		   mcolor = 'cadetblue';
+		} else if (options.band.match('12M')) {
+		   mcolor = 'lightblue';
+		} else if (options.band.match('10M')) {
+		   mcolor = 'lightgreen';
+		} else if (options.band.match('6M')) {
+		   mcolor = 'yellow';
+		} else if (options.band.match('2M')) {
+		   mcolor = 'beige';
+		} else if (options.band.match('1.25M')) {
+		   mcolor = 'pink';
+		} else if (options.band.math('70CM')) {
+		   mcolor = 'lightred';
+		} else if (options.band.match('OOB30M')) {
+		   mcolor = 'gray';
+		} else
+		   mcolor = 'black';
 
 		options.icon = new L.AwesomeMarkers.icon({
 			icon: modesymbol,
 			iconColor: 'white',
-			markerColor: options.markerColor
+			markerColor: mcolor
 		});
 		return new L.KMLMarker(new L.LatLng(ll[1], ll[0]), options);
 	},

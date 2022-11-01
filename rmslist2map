@@ -168,7 +168,7 @@ foreach my $line (@output) {
          print "  <Placemark id=\"$callsign-$band-$clean_mode\">\n";
          print "   <name>$callsign $mode $band</name>\n";
          print "   <description><![CDATA[$mode node at $callsign ($gridsquare) listening at $freq ($dist km @ $azimuth)]]></description>\n";
-         print "   <color>" . $color . "</color>\n";
+#         print "   <color>" . $color . "</color>\n";
          print "   <band>" . $band . "</band>\n";
          print "   <mode>" . $mode . "</mode>\n";
          print "   <LookAt>\n";
