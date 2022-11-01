@@ -6,6 +6,7 @@ var base_layer;
 
 function render_rms_kml(kmltext) {
    const parser = new DOMParser();
+
    // Create new kml overlay
    var kml = parser.parseFromString(kmltext, 'text/xml');
    var track = new L.KML(kml);

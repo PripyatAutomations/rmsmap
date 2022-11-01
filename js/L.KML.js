@@ -101,13 +101,10 @@ L.Util.extend(L.KML, {
 					if(!value) {
 						continue;
 					}
-/*
 					if (key === 'color') {
 						options.opacity = parseInt(value.substring(0, 2), 16) / 255.0;
 						options.color = '#' + value.substring(6, 8) + value.substring(4, 6) + value.substring(2, 4);
-					} else 
-*/
-					if (key === 'width') {
+					} else if (key === 'width') {
 						options.weight = parseInt(value);
 					} else if (key === 'Icon') {
 						ioptions = _parse(e);
@@ -464,16 +461,18 @@ L.KMLIcon = L.Icon.extend({
 	}
 });
 
-
 L.KMLMarker = L.Marker.extend({
+/*
 	options: {
-//		icon: new L.KMLIcon.Default()
+		icon: new L.KMLIcon.Default()
 		icon:  L.AwesomeMarkers.icon({
-			icon: 'mail-unread',
+//			icon: 'mail-unread',
+			icon: 'star',
 			iconColor: 'white',
    			markerColor: this.markerColor
 		})
 	}
+*/
 });
 
 // Inspired by https://github.com/bbecquet/Leaflet.PolylineDecorator/tree/master/src
