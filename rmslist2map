@@ -5,7 +5,7 @@ sub maidenhead2latlong;
 sub freq2band;
 
 my $show_mode;			# Modes to show in rmslist
-my $output_type = "xml";	# geojson or xml output by default?
+my $output_type = "kml";	# geojson or kml output by default?
 
 ##### XXX Figure out if pat-winlink or pat is appropriate binary name to call:
 # debian calls it pat-winlink
@@ -24,8 +24,10 @@ my $color_12m =  'cadetblue';
 my $color_10m =  'yellow';
 my $color_6m =   'red';
 my $color_2m =   'green';
+my $color_1_25m = 'purple';
 my $color_70cm = 'orange';
 my $color_unknown = 'darkgrey';
+my $color_30moob = 'lightgrey';
 
 ########################
 # commandline handling #
@@ -36,7 +38,7 @@ if ($num_args >= 2) {
    $output_type = lc($ARGV[0]);
    $show_mode = uc($ARGV[1]);
 } elsif ($num_args == 1) {
-   $output_type = "geojson";
+   $output_type = "kml";
    $show_mode = uc($ARGV[0]);
 } else {
    print "usage: rmlist2map <format> <mode>\n";
@@ -108,20 +110,23 @@ foreach my $line (@output) {
       $center_freq =~ s/\.//;
       my $band = freq2band($freq);
 
-      if ($band =~ m/^"160M"/) { $color = $color_160m; }
-      elsif ($band =~ m/^"80M"/) { $color = $color_80m; }
-      elsif ($band =~ m/^"60M"/) { $color = $color_60m; }
-      elsif ($band =~ m/^"40M"/) { $color = $color_40m; }
-      elsif ($band =~ m/^"30M"/) { $color = $color_30m; }
-      elsif ($band =~ m/^"20M"/) { $color = $color_20m; }
-      elsif ($band =~ m/^"17M"/) { $color = $color_17m; }
-      elsif ($band =~ m/^"15M"/) { $color = $color_15m; }
-      elsif ($band =~ m/^"12M"/) { $color = $color_12m; }
-      elsif ($band =~ m/^"10M"/) { $color = $color_10m; }
-      elsif ($band =~ m/^"6M"/) { $color = $color_6m; }
-      elsif ($band =~ m/^"2M"/) { $color = $color_2m; }
-      elsif ($band =~ m/^"70CM"/) { $color = $color_70cm; }
-      else { $color = $color_unknown; }
+      if ($band =~ m/^160M/) { $color = $color_160m; }
+      elsif ($band =~ m/^80M/) { $color = $color_80m; }
+      elsif ($band =~ m/^60M/) { $color = $color_60m; }
+      elsif ($band =~ m/^40M/) { $color = $color_40m; }
+      elsif ($band =~ m/^30M/) { $color = $color_30m; }
+      elsif ($band =~ m/^OOB30M/) { $color = $color_30moob; }
+      elsif ($band =~ m/^20M/) { $color = $color_20m; }
+      elsif ($band =~ m/^17M/) { $color = $color_17m; }
+      elsif ($band =~ m/^15M/) { $color = $color_15m; }
+      elsif ($band =~ m/^12M/) { $color = $color_12m; }
+      elsif ($band =~ m/^10M/) { $color = $color_10m; }
+      elsif ($band =~ m/^6M/) { $color = $color_6m; }
+      elsif ($band =~ m/^2M/) { $color = $color_2m; }
+      elsif ($band =~ m/^1.25M/) { $color = $color_1_25m; }
+      elsif ($band =~ m/^70CM/) { $color = $color_70cm; }
+      elsif ($band =~ m/^unknown/i) { $color = $color_unknown; }
+      else { print STDERR "This shouldnt happen: band == " . $band; }
 
       if ($output_type =~ m/^geojson/i) {
          # Dump the entry
@@ -163,6 +168,8 @@ foreach my $line (@output) {
          print "  <Placemark id=\"$callsign-$band-$clean_mode\">\n";
          print "   <name>$callsign $mode $band</name>\n";
          print "   <description><![CDATA[$mode node at $callsign ($gridsquare) listening at $freq ($dist km @ $azimuth)]]></description>\n";
+         print "   <color>" . $color . "</color>\n";
+         print "   <band>" . $band . "</band>\n";
          print "   <LookAt>\n";
          print "    <latitude>" . $coords[0] . "</latitude>\n";
          print "    <longitude>" . $coords[1] . "</longitude>\n";
@@ -175,8 +182,6 @@ foreach my $line (@output) {
          print "   <Point>\n";
          print "    <altitudeMode>relativeToGround</altitudeMode>\n";
          print "    <coordinates>" . $coords[1] . "," . $coords[0] . "</coordinates>\n";
-         print "    <color>" . $color . "</color>\n";
-         print "    <band>" . $band . "</band>\n";
          print "   </Point>\n";
          print "  </Placemark>\n";
       }
