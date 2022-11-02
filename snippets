@@ -1,0 +1,15 @@
+var drawControl = new L.Control.Draw({
+    draw: {
+        circle   : {
+            metric: true,
+            feet: false
+        }
+    }
+});
+
+
+var graphicScale = L.control.graphicScale({
+   fill: 'fill',
+   doubleLine: true,
+   showSubunits: true
+}).addTo(map);

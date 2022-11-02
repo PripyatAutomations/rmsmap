@@ -147,7 +147,7 @@
              * @type {Array}
              * @default
              */
-            unitControlUnits: ["kilometres" , "landmiles", "nauticalmiles"],
+            unitControlUnits: ["kilometres" , "landmiles"/*, "nauticalmiles"*/],
             /**
              * Title texts to show on the Unit Control button
              * @type {Object}
@@ -157,7 +157,7 @@
                text: 'Change Units',
                kilometres: 'kilometres',
                landmiles: 'land miles',
-               nauticalmiles: 'nautical miles'
+//               nauticalmiles: 'nautical miles'
             },
             /**
              * Unit symbols to show in the Unit Control button and measurement labels
@@ -169,7 +169,7 @@
                kilometres: 'km',
                feet: 'ft',
                landmiles: 'mi',
-               nauticalmiles: 'nm'
+//               nauticalmiles: 'nm'
             },
             /**
              * Classes to apply to the Unit control
@@ -553,6 +553,11 @@
                 this._computeDistance(this._currentLine);
             }
             this._arrPolylines.map (this._computeDistance.bind(this));
+
+            //////////////////////
+            /* Set leaflet unit */
+            //////////////////////
+            update_scalebar(this.options.unit);
         },
 
         _computeDistance: function(line) {
@@ -962,7 +967,6 @@
             }
             text = text + '<div class="polyline-measure-tooltip-difference">+' + '0</div>';
             text = text + '<div class="polyline-measure-tooltip-total">' + '0</div>';
-            firstTooltip._icon.innerHTML = text;
             this._currentLine.tooltips.push (firstTooltip);
             this._currentLine.circleCoords.last = last;
             this._currentLine.tooltips.last = last;

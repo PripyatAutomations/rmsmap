@@ -323,11 +323,12 @@ L.Util.extend(L.KML, {
 			return;
 		}
 		var ll = el[0].childNodes[0].nodeValue.split(',');
+// XXX: break this out to something that extend's this method instead?
 // beige black blue cadetblue darkblue darkgreen
 // darkpurple darkred gray green lightblue lightgray
 // lightgreen lightred orange pink purple red white 
 // yellow
-		var modesymbol = 'star';
+		var modesymbol = 'leaf';
 		var mcolor;
 		if (options.band.match('160M')) {
 		   mcolor = 'darkred';
@@ -361,10 +362,13 @@ L.Util.extend(L.KML, {
 		   mcolor = 'gray';
 		} else
 		   mcolor = 'black';
-
+                
 		options.icon = L.AwesomeMarkers.icon({
+//                options.icon = L.BeautifyIcon.icon({
 			icon: modesymbol,
 			iconColor: 'white',
+//			iconShape: 'marker',
+//			iconSize: [22, 22],
 			markerColor: mcolor
 		});
 		return new L.KMLMarker(new L.LatLng(ll[1], ll[0]), options);

@@ -16,15 +16,32 @@ a, a:hover, a:visited, a:active {
     text-decoration: underline;
 }
 
-div#linkswrap {
-   z-index: 100000000;
+#toggle_menu {
+   color: yellow;
+   background: #505050;
+   border: 2px solid #909090;
+   width: 3em;
 }
 
-div#links {
-   border: 2px solid #999999;
+#toggle_menu a, #toggle_menu a:visited, #toggle_menu a:active {
+   color: yellow;
+}
+
+div#menuwrap {
+   border: 1px solid #505050;
+   z-index: 100000000;
+   padding: 2px;
+   margin: 0px;
+   margin-top: -6px;
+   width: CALC(100% - 1.5em);
+}
+
+div#menu {
+   border: 2px solid #505050 ;
+   margin: 4px;
    position: fixed;
-   left: 1.5em;
-   top: 2em;
+   left: 0.25em;
+   top: 1.7em;
    z-index: 100000000;
    background: black;
    display: none;
@@ -32,9 +49,9 @@ div#links {
 
 div#rms-map {
    position: absolute;
-   top: 2.5em;
+   top: 2.6em;
    left: 0.5em;
-   border: 2px solid #a0a0a0;
+   border: 2px solid #505050;
    height: CALC(100% - 6.8em);
    width: CALC(100% - 1.5em);
 }

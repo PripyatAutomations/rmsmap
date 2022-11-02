@@ -1,13 +1,13 @@
-<div id="help">
-<input type="button" onclick="$('div#help').hide(); return false;"/>
-<input type="checkbox" id="showhelp" checked/><br/>
-<label for="showhelp">Show help on start?</label><br/>
-<script>
+<div id="helpInner">
+ <input type="button" onclick="$('div#help').hide(); return false;"/>
+ <input type="checkbox" id="showhelp" checked/><br/>
+ <label for="showhelp">Show help on start?</label><br/>
+ <script>
  $('input#showhelp').change(function() {
      // update show_help (from js/rmsmap.js) appropriately
  });
-</script>
-<pre id="helptext">
+ </script>
+ <pre id="helptext">
 MAP HELP
 --------
 
@@ -33,5 +33,5 @@ MAP HELP
 
   * Measuring *
   ESC		End route
-</pre>
-<div>
+ </pre>
+</div>

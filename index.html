@@ -11,29 +11,43 @@
   <link href="css/fontawesome.min.css" rel="stylesheet"/>
   <link href="css/ionicons.min.css" rel="stylesheet"/>
   <link href="css/leaflet.awesome-markers.css" rel="stylesheet"/>
-  <link href="css/Leaflet.GraphicScale.min.css" rel="stylesheet"/>
   <link href="css/Leaflet.PolylineMeasure.css" rel="stylesheet"/>
   <link href="css/leaflet.mousecoordinate.css" rel="stylesheet"/>
   <link href="css/leaflet.magnifyingglass.css" rel="stylesheet"/>
   <link href="css/L.switchBasemap.css" rel="stylesheet"/>
+  <link href="css/L.Control.ZoomBar.css" rel="stylesheet"/>
   <link href="css/Control.Loading.css" rel="stylesheet"/>
+  <link href="css/L.Control.BetterScale.css" rel="stylesheet"/>
+<!--
+  <link href="css/Leaflet.GraphicScale.min.css" rel="stylesheet"/>
+  <link href="css/leaflet-beautify-marker-icon.css" rel="stylesheet"/>
+-->
   <script src="js/jquery.min.js"></script>
   <script src="js/fontawesome.min.js"></script>
   <script src="leaflet/leaflet.js"></script>
+  <script src="js/leaflet.offline.js"></script>
   <script src="js/leaflet.awesome-markers.js"></script>
-  <script src="js/Leaflet.GraphicScale.min.js"></script>
   <script src="js/Leaflet.PolylineMeasure.js"></script>
   <script src="js/leaflet.mousecoordinate.min.js"></script>
   <script src="js/leaflet.magnifyingglass.js"></script>
-  <script src="js/L.switchBasemap.js"></script>
   <script src="js/L.KML.js"></script>
-  <script src="js/Control.Loading.css"></script>
-<!--  <script src="js/zip-fs-full.min.js"></script> -->
+  <script src="js/Control.Loading.js"></script>
+  <script src="js/Leaflet.EdgeMarker.js"></script>
+  <script src="js/L.Terminator.js"></script>
+  <script src="js/L.timezones.js"></script>
+  <script src="js/L.Control.ZoomBar.js"></script>
+  <script src="js/L.Control.BetterScale.js"></script>
+<!--
+  <script src="js/Leaflet.GraphicScale.js"></script>
+  <script src="js/L.switchBasemap.js"></script>
+  <script src="js/leaflet-beautify-marker-icon.js"></script>
+  <script src="js/zip-fs-full.min.js"></script>
+-->
   <script src="js/rmsmap.js"></script>
  </head>
  <body>
-  <div id="linkswrap">
-   <a href="#" id="toggle_links">[menu]</a>
+  <div id="helpcontainer"></div>
+  <div id="menuwrap"><a href="#" id="toggle_menu">[menu]</a>
    <select id="mode">
     <option value="rms-all">RMS-ALL</option>
     <option value="rms-ardop" selected>RMS-ARDOP</option>
@@ -46,50 +60,53 @@
    </select>
    <input type="text" id="myqth" length="24" placeholder="QTH"/>
    <input type="button" id="setqth" value="Set"/>
-   <br/>
-   <div id="links">
-    <ul>
-     <hr/>
-     Links
-     <hr/>
-     <li><a href="http://github.com/PripyatAutomations/rmsmap">&lt;github&gt;</a></li>
-     <hr/>
-     Datasets
-     <hr/>
-     <li>ALL&nbsp;&middot;
-      <a href="rms-all.json.gz">json</a>&middot;
-      <a href="rms-all.kml.gz">kml</a>
-     </li>
-     <li>ARDOP&nbsp;&middot;
-      <a href="rms-ardop.json.gz">json</a>&middot;
-      <a href="rms-ardop.kml.gz">kml</a>
-     </li>
-     <li>Packet&nbsp;&middot;
-      <a href="rms-packet.json.gz">json</a>&middot;
-      <a href="rms-packet.kml.gz">kml</a>
-     </li>
-     <li>VARA&nbsp;&middot;
-      <a href="rms-vara.json.gz">json</a>&middot;
-      <a href="rms-vara.kml.gz">kml</a>
-     </li>
-     <hr/>
-     Scripts
-     <hr/>
-     <li><a href="rmslist2map">rmslist2map</a></li>
-     <li><a href="www-rmslists">www-rmslists</a></li>
-     <hr/>
-     Settings
-     <hr/>
-     <label for="autozoom">Autozoom?</label>
-     <input type="checkbox" id="autozoom" checked/>
-    </ul>
+   </div>
+   <div id="menu">
+    <center>Links</center>
+    <a href="#" onclick="$('div#help').show();">Help</a><br/>
+    <a href="http://github.com/PripyatAutomations/rmsmap">&lt;github&gt;</a>
+    <hr/>
+    <center>Datasets</center>
+    ALL&nbsp;&nbsp;&nbsp;
+     <a href="rms-all.json.gz">json</a>&middot;
+     <a href="rms-all.kml.gz">kml</a><br/>
+    ARDOP
+     <a href="rms-ardop.json.gz">json</a>&middot;
+     <a href="rms-ardop.kml.gz">kml</a><br/>
+    Packet&nbsp;
+     <a href="rms-packet.json.gz">json</a>&middot;
+     <a href="rms-packet.kml.gz">kml</a><br/>
+    </li>
+    <li>VARA&nbsp;&nbsp;
+     <a href="rms-vara.json.gz">json</a>&middot;
+     <a href="rms-vara.kml.gz">kml</a><br/>
+    </li>
+    <hr/>
+    <center>Scripts</center>
+    <li><a href="rmslist2map">rmslist2map</a></li>
+    <li><a href="www-rmslists">www-rmslists</a></li>
+    <hr/>
+    <center>Settings</center>
+    <input type="checkbox" id="autozoom" checked/>
+    <label for="autozoom">Autozoom</label><br/>
+    <input type="checkbox" id="edge_markers"/>
+    <label for="edge_markers">Edge Markers</label><br/>
+    <input type="checkbox" id="lit_earth"/>
+    <label for="lit_earth">Lit Earth</label><br/>
+    <input type="checkbox" id="time_zones"/>
+    <label for="time_zones">Time Zones</label><br/>
+    <label for="basemap">Basemap</label><br/>
+    <select id="basemap">
+     <option value="otm" selected>Open Topo map</option>
+     <option value="osm">Open Street map</option>
+    </select><br/>
    </div>
   </div>
   <div id="rms-map"></div>
   <div id="status">
    <code>Measurement: </code><br/>
    <code>
-   Showing <span id="t_mode">*</span> on <span id="t_band">*</span> at <span id="t_zoom">*</span> zoom</code>
+   Showing <span id="t_mode">*</span> (<span id="t_band">*</span>) on <span id="t_basemap"></span> zoom <span id="t_zoom">*</span></code>
   </div>
  </body>
 </html>
