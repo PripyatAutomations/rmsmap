@@ -30,8 +30,9 @@ var factory_config = {
    auto_zoom: false,
    bands: [ ],
    basemap: 'otm',
-   help_at_start: false,
+   help_at_start: true,
    mag_show_markers: false,
+   magnifier: true,
    mode: 'rms-ardop',
    my_qth: null,
    map_center: center_usa,
@@ -58,10 +59,10 @@ function factory_reset() {
    var do_reset = confirm("Are you sure you want to factory reset?");
    
    if (do_reset) {
-      console.log("* factory reset CONFIRMED");
+      console.log("[factory reset] CONFIRMED");
       config = factory_config;
    } else
-      console.log("* factory reset CANCELLED");
+      console.log("[factory reset] CANCELLED");
 
    update_settings_html();
 }
@@ -83,17 +84,17 @@ function load_settings() {
 
       if (pc != null && pc !== undefined) {
          config = pc;
-         console.log("* load_settings from localStorage success");
+         console.log("[load_settings] from localStorage success");
       } else {
-         console.log("* invalid localStorage configuration, ignoring");
+         console.log("[load_settings] from localStorage failed");
       }
    } else {
-     console.log("* localStorage.myconfig not found, not loading");
+     console.log("[load_settings] from localStorage: not found");
    }
    update_settings_html();
 
    if (need_upgrade) {
-      console("* upgrading saved configuration (v" + lstmp + ") to latest (v" + config_version + ")");
+      console("[load_settings] upgrading saved configuration (v" + lstmp + ") to latest (v" + config_version + ")");
       save_settings();
    }
 }
@@ -101,7 +102,7 @@ function load_settings() {
 function save_settings() {
    var res = ls.setItem('myconfig', JSON.stringify(config));
    ls.setItem('myconfig_version', config_version);
-   console.log("* save_settings to localStorage");
+   console.log("[save_settings] to localStorage");
 }
 
 ///////////////////////
@@ -129,6 +130,7 @@ function update_settings_html() {
    $('select#basemap').val(config.basemap);
    $('input#help_at_start').val(config.help_at_start);
    $('input#mag_show_markers').val(config.mag_show_markers);
+   $('input#show_magnifier').val(config.magnifier);
    $('input#mode').val(config.mode);
    $('input#my_qth').val(config.my_qth);
    $('input#show_edge_markers').val(config.show_edge_markers);
@@ -138,55 +140,68 @@ function update_settings_html() {
 }
      
 // change the active displayed mode
-function change_layer(mymode) {
-   // unload old layer
+function change_layer(name) {
+   var found = false;
+   var track;
+
+   console.log("[change_layer] switching overlay to " + name);
+   // unload old layer before doing anything else...
    if (activekmlLayer != "") {
       map.removeLayer(activekmlLayer);
       activekmlLayer = "";
    }
 
-   console.log("* switching active overlay layer to " + mymode);
-   var kml_file = mymode + '.kml';
-   find_or_load_layer(mymode, kml_file);
-}
-
-// Find a layer in the cache or add it
-function find_or_add_layer(name, layer) {
-   var i, sz;
-
    if (layers[name] !== undefined && layers[name] != null) {
-      layer = layers[name].layer;
+      track = layers[name].layer;
+      found = true;
+      console.log("[CACHE] found layer " + name);
    }
 
-   // This lets us search for an existing layer without loading it
-   if (layer == null)
-      return null;
+   if (!found) {
+       var kml_file = name + '.kml';
+       var kml_file = $('#mode').val() + '.kml';
+       console.log("[FETCH] downloading " + kml_file + "...");
 
-   console.log("* storing layer " + name + " in cache");
-   layers[name] = {
-       layer: layer,
-       name: name
-   };
-   return layer;
-}
+       var getreq = $.ajax({
+          url: kml_file,
+          async: false,
+          beforeSend: function(xhr) {
+             xhr.overrideMimeType( "text/html" );
+          },
+          xhrFields: {
+             dataType: 'text/html',
+             withCredentials: true
+          },
+          success: function(kmltext) {
+             const parser = new DOMParser();
+             var kml = parser.parseFromString(kmltext, 'text/xml');
+             track = new L.KML(kml);
+             console.log("[FETCH] download succesful for layer " + name + " from " + kml_file);
+          },
+          fail: function() {
+             alert("Unable to download layer " + name + " :(");
+             console.log("[FETCH] failed downloading layer " + name + " from " + kml_file);
+          }
+       });
 
-// Locate an existing instance of the instance or load from file
-function find_or_load_layer(name, file) {
-   var layer;
+       if (track === undefined || track == null) {
+          alert("Unable to switch to layer " + name);
+          return null;
+       }
 
-   // is it already in the cache?
-   if ((layer = find_or_add_layer(name, null) !== null)) {
-      return layer;
+       if (track !== undefined && track != null) {
+          console.log("[CACHE] storing layer " + name);
+          layers[name] = {
+             layer: track,
+             name: name
+          }
+       }
    }
 
-   /* XXX: parse the filename to decide what kind of layer it is - kml only for now */
-   // fetch the file
-   layer = load_kml(name, file);
-   return find_or_add_layer(name, layer);
-}
+   if (!map.hasLayer(track))
+      map.addLayer(track);
 
-function map_append_layer(map, track) {
-   map.addLayer(track);
+   // selected as active overlay layer
    activekmlLayer = track;
 
    // scale the map to fit all nodes
@@ -194,51 +209,11 @@ function map_append_layer(map, track) {
       const bounds = track.getBounds();
       map.fitBounds(bounds);
    }
-}
 
-function load_kml(name, kmltext) {
-   var i, found = false;
-   var track;
-
-   var i = find_or_add_layer(name, null);
-
-   if (i !== null) {
-      console.log("* found cached layer " + name);
-      found = true;
-   }
-
-   if (!found) {
-      var kml_file = $('#mode').val() + '.kml';
-      console.log("* downloading " + kml_file + "...");
-
-      var getreq = $.ajax({
-         url: kml_file,
-         beforeSend: function(xhr) {
-            xhr.overrideMimeType( "text/html" );
-         },
-         xhrFields: {
-            dataType: 'text/html',
-            withCredentials: true
-         }
-      });
-      getreq.done(function(kmltext) {
-         const parser = new DOMParser();
-         var kml = parser.parseFromString(kmltext, 'text/xml');
-         track = new L.KML(kml);
-         find_or_add_layer(name, track);
-         map_append_layer(map, track);
-      });
-      getreq.fail(function(e) {
-         alert("Unable to load layer " + name + " :(");
-         console.log("* failed loading layer " + name);
-      });
-   } else {
-      track = layers[name].layer;
-      map_append_layer(map, track);
-   }
    update_statusbar();
    return track;
 }
+
 
 ////////////////////////////
 
@@ -401,21 +376,27 @@ function update_scale(unit) {
    }
 
    if (unit.match('landmiles')) {
-      console.log("* setting units to imperial");
+      console.log("[CONFIG] setting units to imperial");
       scale_bar = L.control.betterscale({
          metric: false,
          imperial: true
       });
       scale_bar.addTo(map);
    } else if (unit.match('kilometres')) {
-      console.log("* setting units to metric");
+      console.log("[CONFIG] setting units to metric");
       scale_bar = L.control.betterscale({
          metric: true,
          imperial: false
       });
       scale_bar.addTo(map);
-   } else
-      alert("Unknown scale unit: " + unit + ", cannot setup scalebar");
+   } else {
+      alert("Unknown scale unit: " + unit + ", cannot defaulting to imperial");
+      scale_bar = L.control.betterscale({
+         metric: true,
+         imperial: false
+      });
+      scale_bar.addTo(map);
+   }
 }
 
 function load_basemap() {
@@ -457,6 +438,7 @@ function polylinemeasureDebugevent(e) {
 
 /////////////////
 
+// Set all togglable elements to match the active configuration
 function update_all() {
    toggle_coordinates();
    toggle_edge_markers();
