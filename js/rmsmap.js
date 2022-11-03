@@ -21,6 +21,8 @@ var mapOptions = {
    fullscreenControl: true,
    loadingControl: true,
    zoom: 4,
+   minZoom: 1,
+   maxZoom: 15,
    zoomControl: false		// so we can use extended zoom controls
 };
 
@@ -37,9 +39,11 @@ var factory_config = {
    mode: 'rms-ardop',
    my_qth: null,
    map_center: center_usa,
+   show_coordinates: true,
    show_edge_markers: false,
    show_lit_earth: true,
    show_magnifier: true,
+   show_measuring: true,
    show_tz: true,
    units: 'landmiles',
    use_tile_cache: true
@@ -138,10 +142,13 @@ function update_settings_html() {
    $('input#mag_show_markers').val(config.mag_show_markers);
    $('input#mode').val(config.mode);
    $('input#my_qth').val(config.my_qth);
+   $('input#show_coordinates').val(config.show_coordinates);
    $('input#show_edge_markers').val(config.show_edge_markers);
    $('input#show_lit_earth').val(config.show_lit_earth);
    $('input#show_magnifier').val(config.show_magnifier);
+   $('input#show_measuring').val(config.show_measuring);
    $('input#show_tz').val(config.show_tz);
+   $('input#use_tile_cache').val(config.use_tile_cache);
 }
      
 // change the active displayed mode
@@ -221,9 +228,42 @@ function change_layer(name) {
 
 
 ////////////////////////////
+function toggle_auto_zoom() {
+   config.auto_zoom = $('input#autozoom').prop('checked');
+}
+
+function toggle_coordinates() {
+   config.show_coordinates = $('input#show_coordinates').prop('checked');
+
+   console.log("set show_coordinates: ", config.show_coordinates);
+   if (config.show_coordinates) {
+      if (coordinates === undefined || coordinates == null) {
+         coordinates = L.control.mouseCoordinate({
+            gps: true,
+            gpsLong: false,
+            nac: false,
+            qth: true,
+            utm: false,
+            utmref: true
+         });
+         coordinates.addTo(map);
+      }
+   } else {
+      if (coordinates !== undefined && coordinates != null) {
+         if (map.hasLayer(coordinates)) {
+            map.removeLayer(coordinates);
+            delete coordinates;
+         } else
+           alert("nooo");
+      } else
+         alert("wut?");
+   }
+}
 
 function toggle_edge_markers() {
-   if ($('input#show_edge_markers').prop('checked')) {
+   config.show_edge_markers = $('input#show_edge_markers').prop('checked');
+
+   if (config.show_edge_markers) {
       edgeMarkerLayer = L.edgeMarker({
          findEdge : function(map){
              return L.bounds([200,0],map.getSize());
@@ -242,8 +282,23 @@ function toggle_edge_markers() {
    }
 }
 
+function toggle_help() {
+   if (help_loaded == false) {
+      fetch('help.html').then(res => res.text()).then(htmldata => {
+         $('div#helpcontainer').html(htmldata);
+         help_loaded = true;
+        $('div#helpcontainer').show();
+      });
+   } else
+      $('div#helpcontainer').toggle();
+
+   $('#menu').hide();
+}
+
 function toggle_lit_earth() {
-   if ($('input#show_lit_earth').prop('checked')) {
+   config.show_lit_earth = $('input#show_lit_earth').prop('checked');
+
+   if (config.show_lit_earth) {
       lit_earth = L.terminator();
       lit_earth.addTo(map);
    } else {
@@ -255,30 +310,14 @@ function toggle_lit_earth() {
    }
 }
 
-function toggle_tz() {
-   if ($('input#show_tz').prop('checked')) {
-      time_zones = L.timezones;
-
-      // XXX: We need to improve the popup, disabling for now
-/*
-      time_zones.bindPopup(function (layer) {
-         return layer.feature.properties.time_zone;
-      });
-*/
-      time_zones.addTo(map);
-   } else {
-      if (time_zones !== undefined) {
-         map.removeLayer(time_zones);
-         delete time_zones;
-      }
-   }
-}
-
 function toggle_magnifier() {
-   if ($('input#show_magnifier').prop('checked')) {
+   config.show_magnifier = $('input#show_magnifier').prop('checked');
+
+   if (config.show_magnifier) {
       if (magnifyingGlass == undefined || magnifyingGlass == null) {
          magnifyingGlass = L.magnifyingGlass({
             zoomOffset: 3,
+            maxZoom: 15,
             layers: [
               L.tileLayer(tileUrl, magTileOptions)
             ]
@@ -314,37 +353,10 @@ function toggle_magnifier() {
    }
 }
 
-function toggle_autozoom() {
-   if ($('input#autozoom').prop('checked')) {
-      config.auto_zoom = true;
-   } else {
-      config.auto_zoom = false;
-   }
-}
-
-function toggle_coordinates() {
-   if ($('input#show_tz').prop('checked')) {
-      coordinates = L.control.mouseCoordinate({
-         gps: true,
-         gpsLong: false,
-         nac: false,
-         qth: true,
-         utm: false,
-         utmref: true
-      }).addTo(map);
-   } else {
-      if (coordinates !== undefined) {
-//         map.removeLayer(coordinates);
-         coordinates.remove();
-      }
-   }
-}
-
-///////////////
-// measuring //
-///////////////
 function toggle_measuring() {
-   if ($('input#show_measuring').prop('checked')) {
+   config.show_measuring = $('input#show_measuring').prop('checked');
+
+   if (config.show_measuring) {
       if (polylineMeasure === undefined || polylineMeasure === null) {
          polylineMeasure = L.control.polylineMeasure ({
             position:'topleft',
@@ -375,40 +387,56 @@ function toggle_measuring() {
    }
 }
 
-function toggle_help() {
-   if (help_loaded == false) {
-      fetch('help.html').then(res => res.text()).then(htmldata => {
-         $('div#helpcontainer').html(htmldata);
-         help_loaded = true;
-        $('div#helpcontainer').show();
-      });
-   } else
-      $('div#helpcontainer').toggle();
-
-   $('#menu').hide();
-}
-
 function toggle_offline_tools() {
-   offline_tools = L.control.savetiles(basemap, {
-     zoomlevels: [13, 16], // optional zoomlevels to save, default current zoomlevel
-     confirm(layer, successCallback) {
-       // eslint-disable-next-line no-alert
-       if (window.confirm(`Save ${layer._tilesforSave.length}`)) {
-         successCallback();
-       }
-     },
-     confirmRemoval(layer, successCallback) {
-       // eslint-disable-next-line no-alert
-       if (window.confirm('Remove all the tiles?')) {
-         successCallback();
-       }
-     },
-     saveText:
-       '<i class="fa fa-download" aria-hidden="true" title="Save tiles"></i>',
-     rmText: '<i class="fa fa-trash" aria-hidden="true"  title="Remove tiles"></i>',
-   });
-   offline_tools.addTo(map);
+   config.use_tile_cache = $('input#use_tile_cache').prop('checked');
+   if (config.use_tile_cache) {
+      offline_tools = L.control.savetiles(basemap, {
+        // optional zoomlevels to save, default current zoomlevel
+        zoomlevels: [13, 15],
+        confirm(layer, successCallback) {
+          // eslint-disable-next-line no-alert
+          if (window.confirm(`Save ${layer._tilesforSave.length}`)) {
+            successCallback();
+          }
+        },
+        confirmRemoval(layer, successCallback) {
+          // eslint-disable-next-line no-alert
+          if (window.confirm('Remove all the tiles?')) {
+            successCallback();
+          }
+        },
+        saveText:
+          '<i class="fa fa-download" aria-hidden="true" title="Save tiles"></i>',
+        rmText: '<i class="fa fa-trash" aria-hidden="true"  title="Remove tiles"></i>',
+      });
+      offline_tools.addTo(map);
+   } else {
+      if (map.hasLayer(offline_tools))
+         map.removeLayer(offline_tools);
+   }
 }
+
+function toggle_tz() {
+   config.show_tz = $('input#show_tz').prop('checked')
+
+   if (config.show_tz) {
+      time_zones = L.timezones;
+
+      // XXX: We need to improve the popup, disabling for now
+/*
+      time_zones.bindPopup(function (layer) {
+         return layer.feature.properties.time_zone;
+      });
+*/
+      time_zones.addTo(map);
+   } else {
+      if (time_zones !== undefined) {
+         map.removeLayer(time_zones);
+         delete time_zones;
+      }
+   }
+}
+
 
 function update_scale(unit) {
    if (!scale_bar === undefined) {
@@ -472,14 +500,13 @@ function load_basemap() {
 */
 }
 
-
 function polylinemeasureDebugevent(e) {
    console.debug(e.type, e, polylineMeasure._currentLine)
 }
 
 // Set all togglable elements to match the active configuration
 function update_all() {
-   toggle_autozoom();
+   toggle_auto_zoom();
    toggle_coordinates();
    toggle_edge_markers();
    toggle_magnifier();
@@ -595,7 +622,6 @@ $(document).ready(function() {
    //////////
    $('input#save_settings').click(function(e) { save_settings(); });
    $('input#factory_reset').click(function(e) { factory_reset(); });
-   $('input#autozoom').click(function(e) { toggle_autozoom(); });
 
    $('select#basemap').change(function() {
       alert("Switching basemaps is not yet supported");
@@ -614,14 +640,15 @@ $(document).ready(function() {
       else
          alert("Please set your QTH in the input box before clicking the button");
    });
+   $('input#autozoom').click(function(e) { toggle_auto_zoom(); });
+   $('input#show_coordinates').change(function() { toggle_coordinates(); });
    $('input#show_edge_markers').change(function() { toggle_edge_markers(); });
    $('input#show_lit_earth').change(function() { toggle_lit_earth(); });
    $('input#show_magnifier').change(function() { toggle_magnifier(); });
    $('input#show_measuring').change(function() { toggle_measuring(); });
    $('input#show_tz').change(function() { toggle_tz(); });
    $('input#use_tile_cache').change(function() {
-      console.log("tc: ", $(this).prop('checked'));
-      toggle_offline_tools();
+//      toggle_offline_tools($(this).prop('checked'));
     });
 
    /////////////
@@ -646,9 +673,7 @@ $(document).ready(function() {
    start_keymode();
    load_basemap();
    change_layer($('select#mode').val());
-
+   update_all();
    if (config.help_at_start)
       toggle_help();
-
-   update_all();
 });

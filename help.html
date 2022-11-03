@@ -1,10 +1,17 @@
 <div id="help">
  <input type="button" id="help_toggle" value="Close Help"
   onclick="$('div#helpcontainer').hide();"/>
- <input type="checkbox" id="showhelp" checked/><label for="showhelp">Show help on start?</label><br/>
+ <input type="checkbox" id="help_at_start" checked/><label for="showhelp">Show help on start?</label><br/>
  <script>
- $('input#showhelp').change(function() {
-     // update show_help (from js/rmsmap.js) appropriately
+ // Set the default state of checkbox based on loaded config
+ $('input#help_at_start').checked = config.help_at_start;
+
+ // bind the change event, so we can save the change
+ $('input#help_at_start').change(function() {
+     // config.help_at_start (from js/rmsmap.js) appropriately
+     var tmpval = $('input#help_at_start').prop('checked');
+     config.help_at_start = tmpval;
+     save_settings();
  });
  </script>
  <div id="helptext">
@@ -19,7 +26,8 @@
  <hr/>
  <center><h4>Touch</h4></center>
  <table>
-  <tr><td>Two fingers</td><td>Zoom<td/><tr/>
+  <tr><td>Two Fingers</td><td>Pan map</td></tr>
+  <tr><td>Double Tap</td><td>Zoom In</td></tr>
   <tr><td>Long press</td><td>Toggle Magnifier<td/><tr/>
  </table>
  <hr/>
@@ -29,7 +37,7 @@
    <tr><td>Arrows</td><td>Pan</td></tr>
    <tr><td>+ -</td><td>Zoom in/out</td></tr>
    <tr><td>H</td><td>Toggle help dialog</td></tr>
-   <tr><td>M</td><td>Measuring tool</td></tr>
+   <tr><td>M</td><td>Menu</td></tr>
    <tr><td>Q</td><td>Set QTH</td></tr>
   </table>
  </div>
