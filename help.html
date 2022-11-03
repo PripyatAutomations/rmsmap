@@ -1,37 +1,36 @@
 <div id="help">
- <a id="help_toggle" onclick="$('div#helpcontainer').hide();">[Close Help]</a><br/>
- <input type="checkbox" id="showhelp" checked/><br/>
- <label for="showhelp">Show help on start?</label><br/>
+ <input type="button" id="help_toggle" value="Close Help"
+  onclick="$('div#helpcontainer').hide();"/>
+ <input type="checkbox" id="showhelp" checked/><label for="showhelp">Show help on start?</label><br/>
  <script>
  $('input#showhelp').change(function() {
      // update show_help (from js/rmsmap.js) appropriately
  });
  </script>
- <pre id="helptext">
-MAP HELP
---------
-
-[Icons]
-  +         Zoom In
-  -         Zoom Out
-  |->       Measure a route
-  X         Stop/clear route
-  km/mi/nm  Set unit
-
-[Mouse]
-  * Right click - Hide/show magnifier
-     - L.Click: Toggle markers (NYI)
-  * Zoom: Double click point of interest or use scrollwheel
-
-[Touch]
-  * Normal touch squeeze/stretch/pan controls
-
-[Keyboard]
-  * Pan/Zoom *
-  Arrow Keys	Pan
-  + / -	   	Zoom
-
-  * Measuring *
-  ESC		End route
- </pre>
+ <div id="helptext">
+ <center><h3>Help</h3></center>
+ <hr width="50%"/>
+ <center><h4>Mouse</h4></center>
+ <table>
+  <tr><td>Right click</td><td>Hide/show magnifier<td/><tr/>
+  <tr><td>DblClick</td><td>Zoom in<td/><tr/>
+  <tr><td>Scroll</td><td>Zoom in/out<td/><tr/>
+ </table>
+ <hr/>
+ <center><h4>Touch</h4></center>
+ <table>
+  <tr><td>Two fingers</td><td>Zoom<td/><tr/>
+  <tr><td>Long press</td><td>Toggle Magnifier<td/><tr/>
+ </table>
+ <hr/>
+ <center><h4>Keyboard</h4></center>
+  <table>
+   <tr><td>ESC</td><td>End route/Leave dialog</td></tr>
+   <tr><td>Arrows</td><td>Pan</td></tr>
+   <tr><td>+ -</td><td>Zoom in/out</td></tr>
+   <tr><td>H</td><td>Toggle help dialog</td></tr>
+   <tr><td>M</td><td>Measuring tool</td></tr>
+   <tr><td>Q</td><td>Set QTH</td></tr>
+  </table>
+ </div>
 </div>

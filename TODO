@@ -1,2 +1,8 @@
 * Fix layer ordering (time zones and markers should stay above the lit_earth layer, for example
 	- reproduction: Menu>> Enable timezones then Toggle Lit Earth, observe darkening of tz lines
+
+* Fix select basemap
+* Implement set QTH
+* Show measure line from QTH to clicked marker
+  - Add distance to dialog
+  - Show predicted success rate on each band

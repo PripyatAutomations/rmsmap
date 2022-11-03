@@ -23,6 +23,7 @@
   <link href="css/leaflet-beautify-marker-icon.css" rel="stylesheet"/>
 -->
   <script src="js/jquery.min.js"></script>
+  <script src="js/hamgridsquare.js"></script>
   <script src="js/fontawesome.min.js"></script>
   <script src="leaflet/leaflet.js"></script>
   <script src="js/leaflet.offline.js"></script>
@@ -46,73 +47,77 @@
   <script src="js/rmsmap.js"></script>
  </head>
  <body>
-  <div id="helpcontainer"></div>
-  <div id="menubar">
-   <a href="#" id="toggle_menu">[menu]</a>
-   <select id="mode">
-    <option value="rms-all">RMS-ALL</option>
-    <option value="rms-ardop" selected>RMS-ARDOP</option>
-    <option value="rms-packet">RMS-Packet</option>
-    <option value="rms-vara">RMS-VARA</option>
-    <option value="fmrepeater">FM Repeater</option>
-    <option value="beacons">Beacons</option>
-    <option value="shortwave">Shortwave Bcast</option>
-    <option value="wsjtx">wsjt-x</option>
-   </select>
-   <input type="text" id="my_qth" length="24" placeholder="QTH"/>
-   <input type="button" id="set_qth" value="Set"/>
+  <div id="maincanvas">
+   <div id="helpcontainer"></div>
+   <div id="menubar">
+    <a href="#" id="toggle_menu">[menu]</a>
+    <select id="mode">
+     <option value="rms-all">RMS-ALL</option>
+     <option value="rms-ardop" selected>RMS-ARDOP</option>
+     <option value="rms-packet">RMS-Packet</option>
+     <option value="rms-vara">RMS-VARA</option>
+     <option value="fmrepeater">FM Repeater</option>
+     <option value="beacons">Beacons</option>
+     <option value="shortwave">Shortwave Bcast</option>
+     <option value="wsjtx">wsjt-x</option>
+    </select>
+    <input type="text" id="my_qth" length="24" placeholder="QTH"/>
+    <input type="button" id="set_qth" value="Set"/>
+    </div>
+    <div id="menu">
+     <center>Links</center>
+     <a id="help_toggle">Help</a><br/>
+     <a href="http://github.com/PripyatAutomations/rmsmap">&lt;github&gt;</a>
+     <hr/>
+     <center>Datasets</center>
+     ALL&nbsp;&nbsp;&nbsp;
+      <a href="rms-all.json.gz">json</a>&middot;
+      <a href="rms-all.kml.gz">kml</a><br/>
+     ARDOP
+      <a href="rms-ardop.json.gz">json</a>&middot;
+      <a href="rms-ardop.kml.gz">kml</a><br/>
+     Packet&nbsp;
+      <a href="rms-packet.json.gz">json</a>&middot;
+      <a href="rms-packet.kml.gz">kml</a><br/>
+     </li>
+     <li>VARA&nbsp;&nbsp;
+      <a href="rms-vara.json.gz">json</a>&middot;
+      <a href="rms-vara.kml.gz">kml</a><br/>
+     </li>
+     <hr/>
+     <center>Scripts</center>
+     <li><a href="rmslist2map">rmslist2map</a></li>
+     <li><a href="www-rmslists">www-rmslists</a></li>
+     <hr/>
+     <center>Settings</center>
+     <input type="checkbox" id="autozoom"/>
+     <label for="autozoom">Autozoom</label><br/>
+     <input type="checkbox" id="show_magnifier" checked/>
+     <label for="show_magnifier">Magnifier</label><br/>
+     <input type="checkbox" id="show_edge_markers"/>
+     <label for="show_edge_markers">Edge Markers</label><br/>
+     <input type="checkbox" id="show_lit_earth" checked/>
+     <label for="show_lit_earth">Lit Earth</label><br/>
+     <input type="checkbox" id="show_tz" checked/>
+     <label for="show_tz">Time Zones</label><br/>
+     <input type="checkbox" id="use_tile_cache" checked/>
+     <label for="use_tile_cache">Tile Cache</label><br/>
+     <input type="checkbox" id="show_measuring" checked/>
+     <label for="show_measuring">Measuring Tool</label><br/>
+     <label for="basemap">Basemap</label><br/>
+     <select id="basemap">
+      <option value="otm" selected>Open Topo map</option>
+      <option value="osm">Open Street map</option>
+     </select><br/>
+     <input type="button" id="save_settings" value="Save Settings"/><br/>
+    </div>
    </div>
-   <div id="menu">
-    <center>Links</center>
-    <a id="help_toggle">Help</a><br/>
-    <a href="http://github.com/PripyatAutomations/rmsmap">&lt;github&gt;</a>
-    <hr/>
-    <center>Datasets</center>
-    ALL&nbsp;&nbsp;&nbsp;
-     <a href="rms-all.json.gz">json</a>&middot;
-     <a href="rms-all.kml.gz">kml</a><br/>
-    ARDOP
-     <a href="rms-ardop.json.gz">json</a>&middot;
-     <a href="rms-ardop.kml.gz">kml</a><br/>
-    Packet&nbsp;
-     <a href="rms-packet.json.gz">json</a>&middot;
-     <a href="rms-packet.kml.gz">kml</a><br/>
-    </li>
-    <li>VARA&nbsp;&nbsp;
-     <a href="rms-vara.json.gz">json</a>&middot;
-     <a href="rms-vara.kml.gz">kml</a><br/>
-    </li>
-    <hr/>
-    <center>Scripts</center>
-    <li><a href="rmslist2map">rmslist2map</a></li>
-    <li><a href="www-rmslists">www-rmslists</a></li>
-    <hr/>
-    <center>Settings</center>
-    <input type="checkbox" id="autozoom"/>
-    <label for="autozoom">Autozoom</label><br/>
-    <input type="checkbox" id="show_magnifier"/>
-    <label for="show_magnifier">Magnifier</label><br/>
-    <input type="checkbox" id="show_edge_markers"/>
-    <label for="show_edge_markers">Edge Markers</label><br/>
-    <input type="checkbox" id="show_lit_earth"/>
-    <label for="show_lit_earth">Lit Earth</label><br/>
-    <input type="checkbox" id="show_tz"/>
-    <label for="show_tz">Time Zones</label><br/>
-    <input type="checkbox" id="show_measuring"/>
-    <label for="show_measuring">Measuring Tool</label><br/>
-    <label for="basemap">Basemap</label><br/>
-    <select id="basemap">
-     <option value="otm" selected>Open Topo map</option>
-     <option value="osm">Open Street map</option>
-    </select><br/>
-    <input type="button" id="save_settings" value="Save Settings"/><br/>
+   <div id="rms-map"></div>
+   <div id="status">
+    <code>Measurement: </code><br/>
+    <code>
+    Showing <span id="t_mode">*</span> (<span id="t_band">*</span>) on <span id="t_basemap"></span> zoom <span id="t_zoom">*</span><span id="t_auto_zoom"></span></code>
    </div>
-  </div>
-  <div id="rms-map"></div>
-  <div id="status">
-   <code>Measurement: </code><br/>
-   <code>
-   Showing <span id="t_mode">*</span> (<span id="t_band">*</span>) on <span id="t_basemap"></span> zoom <span id="t_zoom">*</span><span id="t_auto_zoom"></span></code>
-  </div>
+  </div> <!-- maincanvas -->
  </body>
 </html>

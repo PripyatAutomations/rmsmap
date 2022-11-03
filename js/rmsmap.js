@@ -14,11 +14,13 @@ var layers = [ ];
 var last_layer = 0;
 var activekmlLayer = "";
 
+var hgs = HamGridSquare;
+
 var mapOptions = {
    center: center_usa,
-   zoom: 4,
-   loadingControl: true,
    fullscreenControl: true,
+   loadingControl: true,
+   zoom: 4,
    zoomControl: false		// so we can use extended zoom controls
 };
 
@@ -32,25 +34,28 @@ var factory_config = {
    basemap: 'otm',
    help_at_start: true,
    mag_show_markers: false,
-   magnifier: true,
    mode: 'rms-ardop',
    my_qth: null,
    map_center: center_usa,
    show_edge_markers: false,
    show_lit_earth: true,
+   show_magnifier: true,
    show_tz: true,
-   units: 'landmiles'
+   units: 'landmiles',
+   use_tile_cache: true
 };
 var config = factory_config;
 
 // Togglable things
-var edgeMarkerLayer;
-var polylineMeasure;
-var lit_earth;
-var time_zones;
-var scale_bar;
 var coordinates;
+var edgeMarkerLayer;
+var layer_switcher;
+var lit_earth;
 var magnifyingGlass;
+var offline_tools;
+var polylineMeasure;
+var scale_bar;
+var time_zones;
 
 ////////////////////////////////////////////////
 
@@ -125,18 +130,18 @@ function update_statusbar() {
 // Set the html entities to reflect the loaded configuration
 // this should match the HTML
 function update_settings_html() {
+   console.debug("[update_settings_html] updating forms");
    $('input#auto_zoom').checked = config.auto_zoom;
    $('select#bands').val(config.bands);
    $('select#basemap').val(config.basemap);
    $('input#help_at_start').val(config.help_at_start);
    $('input#mag_show_markers').val(config.mag_show_markers);
-   $('input#show_magnifier').val(config.magnifier);
    $('input#mode').val(config.mode);
    $('input#my_qth').val(config.my_qth);
    $('input#show_edge_markers').val(config.show_edge_markers);
    $('input#show_lit_earth').val(config.show_lit_earth);
+   $('input#show_magnifier').val(config.show_magnifier);
    $('input#show_tz').val(config.show_tz);
-   console.debug("* finished loading settings, applying.");
 }
      
 // change the active displayed mode
@@ -370,6 +375,41 @@ function toggle_measuring() {
    }
 }
 
+function toggle_help() {
+   if (help_loaded == false) {
+      fetch('help.html').then(res => res.text()).then(htmldata => {
+         $('div#helpcontainer').html(htmldata);
+         help_loaded = true;
+        $('div#helpcontainer').show();
+      });
+   } else
+      $('div#helpcontainer').toggle();
+
+   $('#menu').hide();
+}
+
+function toggle_offline_tools() {
+   offline_tools = L.control.savetiles(basemap, {
+     zoomlevels: [13, 16], // optional zoomlevels to save, default current zoomlevel
+     confirm(layer, successCallback) {
+       // eslint-disable-next-line no-alert
+       if (window.confirm(`Save ${layer._tilesforSave.length}`)) {
+         successCallback();
+       }
+     },
+     confirmRemoval(layer, successCallback) {
+       // eslint-disable-next-line no-alert
+       if (window.confirm('Remove all the tiles?')) {
+         successCallback();
+       }
+     },
+     saveText:
+       '<i class="fa fa-download" aria-hidden="true" title="Save tiles"></i>',
+     rmText: '<i class="fa fa-trash" aria-hidden="true"  title="Remove tiles"></i>',
+   });
+   offline_tools.addTo(map);
+}
+
 function update_scale(unit) {
    if (!scale_bar === undefined) {
       map.removeLayer(scale_bar);
@@ -432,23 +472,114 @@ function load_basemap() {
 */
 }
 
+
 function polylinemeasureDebugevent(e) {
    console.debug(e.type, e, polylineMeasure._currentLine)
 }
 
-/////////////////
-
 // Set all togglable elements to match the active configuration
 function update_all() {
+   toggle_autozoom();
    toggle_coordinates();
    toggle_edge_markers();
    toggle_magnifier();
    toggle_measuring();
    toggle_lit_earth();
-   toggle_tz();
-   toggle_autozoom();
+//   toggle_offline_tools();
    update_statusbar();
+   toggle_tz();
 }
+
+function set_qth(coords) {
+   console.log("[set_qth] ", coords, " called, parsing...");
+   $('input#my_qth').val(coords);	// store into form
+   config.my_qth = coords;
+   // XXX: place a marker
+}
+
+function start_keymode() {
+   $(document).keypress(function(event) {
+      // Don't capture keystrokes in form fields
+      if ($('input').is(":focus") ||
+          $('select').is(":focus") ||
+          $('textarea').is(":focus")) {
+//         console.log("Ignoring, in input field");
+
+	 // allow catching <enter> to pass (submit forms, etc)
+         if (event.which != 13)
+            return;
+      }
+
+      if (event.which == 13) {
+         // qth input is focused?
+         if ($('input#my_qth').is(":focus")) {
+            if ($('input#my_qth') != '') {
+               set_qth($('input#my_qth').val());
+            } else
+               alert('Please enter a QTH location');
+         }
+         event.preventDefault();
+      }
+
+      if (event.which == 104 || event.which == 72) { // h/H
+         toggle_help();
+         event.preventDefault();
+      } else if (event.which == 109 || event.which == 77) { // m/M
+         $('div#menu').toggle();
+         event.preventDefault();
+      } else if (event.which == 113 || event.which == 81) { // q/Q
+         var newqth;
+
+         if ($('input#my_qth').val() == '') {
+            // Prompt for QTH
+            newqth = prompt('Enter QTH as decimal wgs-84 lat, long or [maidenhead]')
+         } else {
+            newqth = $('input#my_qth').val();
+         }
+
+         // apply it
+         if (newqth != null)
+            set_qth(newqth);
+         event.preventDefault();
+      } else
+         console.log("Unknown keypress: " + event.which);
+   });
+}
+
+////////////////////////////////
+function toggle_layer_switcher() {
+   // layer switcher control
+   const layer_switcher = L.control
+     .layers({
+       'osm (offline)': baseLayer,
+     }, null, { collapsed: false })
+     .addTo(map);
+   storageLayer(baseLayer, layer_switcher);
+}
+
+/*
+// events while saving a tile layer
+let progress, total;
+const showProgress = debounce(() => {
+  document.getElementById('progressbar').style.width = `${(progress/total) * 100}%`;
+  document.getElementById('progressbar').innerHTML = progress;  
+  if(progress === total) {
+    setTimeout(() => document.getElementById('progress-wrapper').classList.remove('show'), 1000);    
+  }
+}, 10);
+
+baseLayer.on('savestart', (e) => {
+  progress = 0;
+  total = e._tilesforSave.length;
+  document.getElementById('progress-wrapper').classList.add('show');  
+  document.getElementById('progressbar').style.width = '0%';
+});
+baseLayer.on('savetileend', () => {
+  progress += 1;     
+  showProgress();
+});
+*/
+////////////////////////////////
 
 $(document).ready(function() {
    load_settings();
@@ -462,22 +593,9 @@ $(document).ready(function() {
    //////////
    // menu //
    //////////
-   $('a#toggle_menu').click(function(e) {
-      $('div#menu').toggle();
-      e.preventDefault();
-   });
-
-   $('input#save_settings').click(function(e) {
-      save_settings();
-   });
-
-   $('input#factory_reset').click(function(e) {
-      factory_reset();
-   });
-
-   $('input#autozoom').click(function(e) {
-      toggle_autozoom();
-   });
+   $('input#save_settings').click(function(e) { save_settings(); });
+   $('input#factory_reset').click(function(e) { factory_reset(); });
+   $('input#autozoom').click(function(e) { toggle_autozoom(); });
 
    $('select#basemap').change(function() {
       alert("Switching basemaps is not yet supported");
@@ -485,29 +603,26 @@ $(document).ready(function() {
       $('#t_basemap').text(tv);
    });
 
-   $('select#mode').change(function() {
-      change_layer($('select#mode').val());
-   });
+   $('a#toggle_menu').click(function(e) { $('div#menu').toggle(); e.preventDefault(); });
+   $('#help_toggle').click(function(e) { toggle_help(); });
+   $('select#mode').change(function() { change_layer($('select#mode').val()); });
+   $('input#set_qth').click(function() {
+      var newqth = $('input#my_qth').val();
 
-   $('input#show_edge_markers').change(function() {
-      toggle_edge_markers();
+      if (newqth != '')
+         set_qth(newqth);
+      else
+         alert("Please set your QTH in the input box before clicking the button");
    });
-
-   $('input#show_lit_earth').change(function() {
-      toggle_lit_earth();
-   });
-
-   $('input#show_measuring').change(function() {
-      toggle_measuring();
-   });
-
-   $('input#show_tz').change(function() {
-      toggle_tz();
-   });
-
-   $('input#show_magnifier').change(function() {
-      toggle_magnifier();
-   });
+   $('input#show_edge_markers').change(function() { toggle_edge_markers(); });
+   $('input#show_lit_earth').change(function() { toggle_lit_earth(); });
+   $('input#show_magnifier').change(function() { toggle_magnifier(); });
+   $('input#show_measuring').change(function() { toggle_measuring(); });
+   $('input#show_tz').change(function() { toggle_tz(); });
+   $('input#use_tile_cache').change(function() {
+      console.log("tc: ", $(this).prop('checked'));
+      toggle_offline_tools();
+    });
 
    /////////////
    // zooming //
@@ -525,25 +640,15 @@ $(document).ready(function() {
    //  ionicons webfont
 //   L.AwesomeMarkers.Icon.prototype.options.prefix = 'ionic';
 
-   /////////////////
-   // help dialog //
-   /////////////////
-   $('a#help_toggle').click(function(e) {
-      if (help_loaded == false) {
-         fetch('help.html').then(res => res.text()).then(htmldata => {
-            $('div#helpcontainer').html(htmldata);
-            help_loaded = true;
-           $('div#helpcontainer').show();
-         });
-      } else
-         $('div#helpcontainer').toggle();
-      $('#menu').hide();
-      e.preventDefault();
-   });
    //////////////////////
    // initalize things //
    //////////////////////
-   change_layer($('select#mode').val());
+   start_keymode();
    load_basemap();
+   change_layer($('select#mode').val());
+
+   if (config.help_at_start)
+      toggle_help();
+
    update_all();
 });
