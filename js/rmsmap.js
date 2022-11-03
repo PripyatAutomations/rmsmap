@@ -154,8 +154,8 @@ function change_layer(mymode) {
 function find_or_add_layer(name, layer) {
    var i, sz;
 
-   if (layers[name] !== undefined && layers[name] !== null) {
-      layer = layers[name];
+   if (layers[name] !== undefined && layers[name] != null) {
+      layer = layers[name].layer;
    }
 
    // This lets us search for an existing layer without loading it
@@ -210,12 +210,27 @@ function load_kml(name, kmltext) {
    if (!found) {
       var kml_file = $('#mode').val() + '.kml';
       console.log("* downloading " + kml_file + "...");
-      fetch(kml_file).then(res => res.text()).then(kmltext => {
+
+      var getreq = $.ajax({
+         url: kml_file,
+         beforeSend: function(xhr) {
+            xhr.overrideMimeType( "text/html" );
+         },
+         xhrFields: {
+            dataType: 'text/html',
+            withCredentials: true
+         }
+      });
+      getreq.done(function(kmltext) {
          const parser = new DOMParser();
          var kml = parser.parseFromString(kmltext, 'text/xml');
          track = new L.KML(kml);
          find_or_add_layer(name, track);
          map_append_layer(map, track);
+      });
+      getreq.fail(function(e) {
+         alert("Unable to load layer " + name + " :(");
+         console.log("* failed loading layer " + name);
       });
    } else {
       track = layers[name].layer;
