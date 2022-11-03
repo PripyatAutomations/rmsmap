@@ -58,8 +58,8 @@
     <option value="shortwave">Shortwave Bcast</option>
     <option value="wsjtx">wsjt-x</option>
    </select>
-   <input type="text" id="myqth" length="24" placeholder="QTH"/>
-   <input type="button" id="setqth" value="Set"/>
+   <input type="text" id="my_qth" length="24" placeholder="QTH"/>
+   <input type="button" id="set_qth" value="Set"/>
    </div>
    <div id="menu">
     <center>Links</center>
@@ -87,26 +87,31 @@
     <li><a href="www-rmslists">www-rmslists</a></li>
     <hr/>
     <center>Settings</center>
-    <input type="checkbox" id="autozoom" checked/>
+    <input type="checkbox" id="autozoom"/>
     <label for="autozoom">Autozoom</label><br/>
-    <input type="checkbox" id="edge_markers"/>
-    <label for="edge_markers">Edge Markers</label><br/>
-    <input type="checkbox" id="lit_earth"/>
-    <label for="lit_earth">Lit Earth</label><br/>
-    <input type="checkbox" id="time_zones"/>
-    <label for="time_zones">Time Zones</label><br/>
+    <input type="checkbox" id="show_magnifier"/>
+    <label for="show_magnifier">Magnifier</label><br/>
+    <input type="checkbox" id="show_edge_markers"/>
+    <label for="show_edge_markers">Edge Markers</label><br/>
+    <input type="checkbox" id="show_lit_earth"/>
+    <label for="show_lit_earth">Lit Earth</label><br/>
+    <input type="checkbox" id="show_tz"/>
+    <label for="show_tz">Time Zones</label><br/>
+    <input type="checkbox" id="show_measuring"/>
+    <label for="show_measuring">Measuring Tool</label><br/>
     <label for="basemap">Basemap</label><br/>
     <select id="basemap">
      <option value="otm" selected>Open Topo map</option>
      <option value="osm">Open Street map</option>
     </select><br/>
+    <input type="button" id="save_settings" value="Save Settings"/><br/>
    </div>
   </div>
   <div id="rms-map"></div>
   <div id="status">
    <code>Measurement: </code><br/>
    <code>
-   Showing <span id="t_mode">*</span> (<span id="t_band">*</span>) on <span id="t_basemap"></span> zoom <span id="t_zoom">*</span></code>
+   Showing <span id="t_mode">*</span> (<span id="t_band">*</span>) on <span id="t_basemap"></span> zoom <span id="t_zoom">*</span><span id="t_auto_zoom"></span></code>
   </div>
  </body>
 </html>
