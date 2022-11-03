@@ -47,7 +47,8 @@
  </head>
  <body>
   <div id="helpcontainer"></div>
-  <div id="menuwrap"><a href="#" id="toggle_menu">[menu]</a>
+  <div id="menubar">
+   <a href="#" id="toggle_menu">[menu]</a>
    <select id="mode">
     <option value="rms-all">RMS-ALL</option>
     <option value="rms-ardop" selected>RMS-ARDOP</option>
@@ -63,7 +64,7 @@
    </div>
    <div id="menu">
     <center>Links</center>
-    <a href="#" onclick="$('div#help').show();">Help</a><br/>
+    <a id="help_toggle">Help</a><br/>
     <a href="http://github.com/PripyatAutomations/rmsmap">&lt;github&gt;</a>
     <hr/>
     <center>Datasets</center>

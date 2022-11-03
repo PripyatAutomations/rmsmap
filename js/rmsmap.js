@@ -22,6 +22,8 @@ var mapOptions = {
    zoomControl: false		// so we can use extended zoom controls
 };
 
+var help_loaded = false;	// have we succesfully fetched help dialog?
+
 // increment if you change the configuration significantly
 var config_version = 1;
 var factory_config = {
@@ -69,17 +71,17 @@ function load_settings() {
    var lstmp;
    var need_upgrade = false;
 
-   if ((lstmp = ls.getItem('myconfig_version')) !== null) {
+   if ((lstmp = ls.getItem('myconfig_version')) != null) {
       if (config_version > lstmp) {
          need_upgrade = true;
       }
    }
 
-   if ((lstmp = ls.getItem('myconfig')) !== null) {
+   if ((lstmp = ls.getItem('myconfig')) != null) {
       // Decode it
       var pc = JSON.parse(lstmp);
 
-      if (pc !== null && pc !== undefined) {
+      if (pc != null && pc !== undefined) {
          config = pc;
          console.log("* load_settings from localStorage success");
       } else {
@@ -151,15 +153,15 @@ function change_layer(mymode) {
 // Find a layer in the cache or add it
 function find_or_add_layer(name, layer) {
    var i, sz;
+
    if (layers[name] !== undefined && layers[name] !== null) {
       layer = layers[name];
    }
 
    // This lets us search for an existing layer without loading it
-   if (layer === null) {
-      console.log("* cache miss for layer " + name);
+   if (layer == null)
       return null;
-   }
+
    console.log("* storing layer " + name + " in cache");
    layers[name] = {
        layer: layer,
@@ -196,6 +198,7 @@ function map_append_layer(map, track) {
 
 function load_kml(name, kmltext) {
    var i, found = false;
+   var track;
 
    var i = find_or_add_layer(name, null);
 
@@ -204,7 +207,6 @@ function load_kml(name, kmltext) {
       found = true;
    }
 
-   var track;
    if (!found) {
       var kml_file = $('#mode').val() + '.kml';
       console.log("* downloading " + kml_file + "...");
@@ -212,6 +214,7 @@ function load_kml(name, kmltext) {
          const parser = new DOMParser();
          var kml = parser.parseFromString(kmltext, 'text/xml');
          track = new L.KML(kml);
+         find_or_add_layer(name, track);
          map_append_layer(map, track);
       });
    } else {
@@ -524,25 +527,22 @@ $(document).ready(function() {
    /////////////
    //  ionicons webfont
 //   L.AwesomeMarkers.Icon.prototype.options.prefix = 'ionic';
-   $('div.leaflet-popup-content-wrapper').on('contextmenu', function(e) {
-      console.log("Menu NYI");
-      return false;
-   });
-
-   $('div.leaflet-popup-content-wrapper').on('click', function(e) {
-      console.log("Click!");
-      console.log(e);
-      $(this).hide();
-   });
 
    /////////////////
    // help dialog //
    /////////////////
-   fetch('help.html').then(res => res.text()).then(htmldata => {
-      $('div#help').html(htmldata);
-      $('div#help').show();
+   $('a#help_toggle').click(function(e) {
+      if (help_loaded == false) {
+         fetch('help.html').then(res => res.text()).then(htmldata => {
+            $('div#helpcontainer').html(htmldata);
+            help_loaded = true;
+           $('div#helpcontainer').show();
+         });
+      } else
+         $('div#helpcontainer').toggle();
+      $('#menu').hide();
+      e.preventDefault();
    });
-
    //////////////////////
    // initalize things //
    //////////////////////
