@@ -190,8 +190,8 @@ function change_layer(name) {
              console.log("[FETCH] download succesful for layer " + name + " from " + kml_file);
           },
           fail: function() {
-             alert("Unable to download layer " + name + " :(");
              console.log("[FETCH] failed downloading layer " + name + " from " + kml_file);
+             alert("Unable to download layer " + name + " :(");
           }
        });
 
@@ -229,6 +229,7 @@ function change_layer(name) {
 ////////////////////////////
 function toggle_auto_zoom() {
    config.auto_zoom = $('input#autozoom').prop('checked');
+   save_settings();
 }
 
 function toggle_coordinates() {
@@ -251,11 +252,10 @@ function toggle_coordinates() {
          if (map.hasLayer(coordinates)) {
             map.removeLayer(coordinates);
             delete coordinates;
-         } else
-           alert("nooo");
-      } else
-         alert("wut?");
+         }
+      }
    }
+   save_settings();
 }
 
 function toggle_edge_markers() {
@@ -278,6 +278,7 @@ function toggle_edge_markers() {
          edgeMarkerLayer.destroy();
       }
    }
+   save_settings();
 }
 
 function toggle_help() {
@@ -308,6 +309,7 @@ function toggle_layer_switcher() {
        delete layer_switcher;
        layer_switcher = null
    }
+   save_settings();
 }
 
 function toggle_lit_earth() {
@@ -323,6 +325,7 @@ function toggle_lit_earth() {
          delete lit_earth;
       }
    }
+   save_settings();
 }
 
 function toggle_magnifier() {
@@ -366,6 +369,7 @@ function toggle_magnifier() {
          }
       }
    }
+   save_settings();
 }
 
 function toggle_measuring() {
@@ -463,6 +467,7 @@ function toggle_measuring() {
             console.log("[polylineMeasure] trying to remove nonexistent layer");
       }
    }
+   save_settings();
 }
 
 function toggle_offline_tools() {
@@ -493,6 +498,7 @@ function toggle_offline_tools() {
       if (map.hasLayer(offline_tools))
          map.removeLayer(offline_tools);
    }
+   save_settings();
 }
 
 function toggle_tz() {
@@ -514,6 +520,7 @@ function toggle_tz() {
          delete time_zones;
       }
    }
+   save_settings();
 }
 
 function update_scale_bar(unit) {
@@ -600,15 +607,31 @@ function update_all() {
    toggle_tz();
 }
 
+function parse_coordinates(coords) {
+   if (/^[A-Xa-x][A-Xa-x][0-9][0-9]$/.test(coords) ||
+      /^[A-Xa-x][A-Xa-x][0-9][0-9][A-Xa-x][A-Xa-x]$/.test(coords)) {
+      var mycoords = hgs.toLatLon(coords);
+      console.log(mycoords);
+      return mycoords;
+   } else {
+      return parseDecDegrees(coords);
+   }
+   return null;
+}
+
 function set_qth(coords) {
-   var convcoord = hgs.toLatLon(coords);
+   var mycoords;
 
    console.log("[set_qth] ", coords, " called, parsing...");
-   console.log(convcoords);
-
-   $('input#my_qth').val(coords);	// store into form
-   config.my_qth = coords;
-   // XXX: place a marker
+   if ((mycoords = parse_coordinates(coords)) != null) {
+      $('input#my_qth').val(mycoords);	// store into form
+      config.my_qth = mycoords;
+      save_settings();
+      // update_qth_marker();
+   } else {
+      alert("Invalid QTH specified. Try again!");
+      console.log("Invalid QTH (" + coords + ") specified. Try again!");
+   }
 }
 
 function start_keymode() {
@@ -633,9 +656,7 @@ function start_keymode() {
                alert('Please enter a QTH location');
          }
          event.preventDefault();
-      }
-
-      if (event.which == 104 || event.which == 72) { // h/H
+      } else if (event.which == 104 || event.which == 72) { // h/H
          toggle_help();
          event.preventDefault();
       } else if (event.which == 109 || event.which == 77) { // m/M
@@ -644,14 +665,7 @@ function start_keymode() {
       } else if (event.which == 113 || event.which == 81) { // q/Q
          var newqth;
 
-         if ($('input#my_qth').val() == '') {
-            // Prompt for QTH
-            newqth = prompt('Enter QTH as decimal wgs-84 lat, long or maidenhead')
-         } else {
-            newqth = $('input#my_qth').val();
-         }
-
-         // apply it
+         newqth = prompt('Enter QTH as decimal wgs-84 lat, long or maidenhead')
          if (newqth != null)
             set_qth(newqth);
          event.preventDefault();
@@ -718,13 +732,13 @@ $(document).ready(function() {
       else
          alert("Please set your QTH in the input box before clicking the button");
    });
-   $('input#autozoom').click(function(e) { toggle_auto_zoom(); });
-   $('input#show_coordinates').change(function() { toggle_coordinates(); });
-   $('input#show_edge_markers').change(function() { toggle_edge_markers(); });
-   $('input#show_lit_earth').change(function() { toggle_lit_earth(); });
-   $('input#show_magnifier').change(function() { toggle_magnifier(); });
+   $('input#autozoom').click(function(e) { toggle_auto_zoom($(this).prop('checked')); });
+   $('input#show_coordinates').change(function() { toggle_coordinates($(this).prop('checked')); });
+   $('input#show_edge_markers').change(function() { toggle_edge_markers($(this).prop('checked')); });
+   $('input#show_lit_earth').change(function() { toggle_lit_earth($(this).prop('checked')); });
+   $('input#show_magnifier').change(function() { toggle_magnifier($(this).prop('checked')); });
    $('input#show_measuring').change(function() {
-      toggle_measuring();
+      toggle_measuring($(this).prop('checked'));
    });
    $('input#show_tz').change(function() { toggle_tz(); });
    $('input#use_tile_cache').change(function() {
