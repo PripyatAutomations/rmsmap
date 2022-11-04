@@ -557,7 +557,7 @@
             //////////////////////
             /* Set leaflet unit */
             //////////////////////
-            update_scalebar(this.options.unit);
+            update_scale_bar(this.options.unit);
         },
 
         _computeDistance: function(line) {

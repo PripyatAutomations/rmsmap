@@ -46,10 +46,12 @@ var factory_config = {
    show_measuring: true,
    show_tz: true,
    units: 'landmiles',
+   use_layer_switcher: false,
    use_tile_cache: true
 };
 var config = factory_config;
 
+var basemap;
 // Togglable things
 var coordinates;
 var edgeMarkerLayer;
@@ -114,9 +116,6 @@ function save_settings() {
    console.log("[save_settings] to localStorage");
 }
 
-///////////////////////
-// Refresh statusbar //
-///////////////////////
 function update_statusbar() {
    // Text strings
    // XXX: this will need exploded with commas?
@@ -132,7 +131,7 @@ function update_statusbar() {
 }
 
 // Set the html entities to reflect the loaded configuration
-// this should match the HTML
+// this should match the HTML in index.html...
 function update_settings_html() {
    console.debug("[update_settings_html] updating forms");
    $('input#auto_zoom').checked = config.auto_zoom;
@@ -235,7 +234,6 @@ function toggle_auto_zoom() {
 function toggle_coordinates() {
    config.show_coordinates = $('input#show_coordinates').prop('checked');
 
-   console.log("set show_coordinates: ", config.show_coordinates);
    if (config.show_coordinates) {
       if (coordinates === undefined || coordinates == null) {
          coordinates = L.control.mouseCoordinate({
@@ -293,6 +291,23 @@ function toggle_help() {
       $('div#helpcontainer').toggle();
 
    $('#menu').hide();
+}
+
+function toggle_layer_switcher() {
+   if (config.layer_switcher) {
+      if (layer_switcher === undefined || layer_switcher == null) {
+         layer_switcher = L.control
+           .layers({
+             'otm (offline)': basemap,
+           }, null, { collapsed: false })
+          layer_switcher.addTo(map);
+          storageLayer(basemap, layer_switcher);
+      }
+   } else {
+       map.removeLayer(layer_switcher);
+       delete layer_switcher;
+       layer_switcher = null
+   }
 }
 
 function toggle_lit_earth() {
@@ -357,14 +372,73 @@ function toggle_measuring() {
    config.show_measuring = $('input#show_measuring').prop('checked');
 
    if (config.show_measuring) {
-      if (polylineMeasure === undefined || polylineMeasure === null) {
+      if (polylineMeasure === undefined || polylineMeasure == null) {
+         console.log("[polylineMeasure] creating new");
          polylineMeasure = L.control.polylineMeasure ({
-            position:'topleft',
-            unit: config.units,
-            showBearings:true,
             clearMeasurementsOnStop: false,
+            position:'topleft',
+            showBearings: true,
             showClearControl: true,
-            showUnitControl: true
+            showUnitControl: true,
+            ////////////
+            // colors //
+            ////////////
+            startCircle: {                  // Style settings for circle marker indicating the starting point of the polyline
+                color: '#000',              // Color of the border of the circle
+                weight: 1,                  // Weight of the circle
+                fillColor: '#0f0',          // Fill color of the circle
+                fillOpacity: 1,             // Fill opacity of the circle
+                radius: 3                   // Radius of the circle
+            },
+            intermedCircle: {               // Style settings for all circle markers between startCircle and endCircle
+                color: '#000',              // Color of the border of the circle
+                weight: 1,                  // Weight of the circle
+                fillColor: '#ff0',          // Fill color of the circle
+                fillOpacity: 1,             // Fill opacity of the circle
+                radius: 3                   // Radius of the circle
+            },
+            currentCircle: {                // Style settings for circle marker indicating the latest point of the polyline during drawing a line
+                color: '#000',              // Color of the border of the circle
+                weight: 1,                  // Weight of the circle
+                fillColor: '#f0f',          // Fill color of the circle
+                fillOpacity: 1,             // Fill opacity of the circle
+                radius: 6                   // Radius of the circle
+            },
+            endCircle: {                    // Style settings for circle marker indicating the last point of the polyline
+                color: '#000',              // Color of the border of the circle
+                weight: 1,                  // Weight of the circle
+                fillColor: '#f00',          // Fill color of the circle
+                fillOpacity: 1,             // Fill opacity of the circle
+                radius: 3                   // Radius of the circle
+            },
+            tempLine: {                     // Styling settings for the temporary dashed line
+                color: '#00f',              // Dashed line color
+                weight: 2                   // Dashed line weight
+            },          
+            fixedLine: {                    // Styling for the solid line
+                color: '#006',              // Solid line color
+                weight: 2                   // Solid line weight
+            },
+            arrow: {                        // Styling of the midway arrow 
+                color: '#000',              // Color of the arrow
+            },
+            ///////////
+            // units //
+            ///////////
+            unit: config.units,
+            // disable nauticalmiles
+            unitControlUnits: ["kilometres", "landmiles"],
+            unitControlTitle: {             // Title texts to show on the Unit Control
+                  text: 'Change Units',
+                  kilometres: 'kilometres',
+                  landmiles: 'land miles',
+              },
+              unitControlLabel: {             // Unit symbols to show in the Unit Control and measurement labels
+                  metres: 'm',
+                  kilometres: 'km',
+                  feet: 'ft',
+                  landmiles: 'mi',
+              }
          });
          map.on('polylinemeasure:toggle', polylinemeasureDebugevent);
          map.on('polylinemeasure:start', polylinemeasureDebugevent);
@@ -376,19 +450,24 @@ function toggle_measuring() {
          map.on('polylinemeasure:insert', polylinemeasureDebugevent);
          map.on('polylinemeasure:move', polylinemeasureDebugevent);
          map.on('polylinemeasure:remove', polylinemeasureDebugevent);
-      }
-
-      if (!map.hasLayer(polylineMeasure))
          polylineMeasure.addTo(map);
+      }
    } else {
-//      if (polylineMeasure !== undefined && polylineMeasure !== null) {
-//         map.remove(polylineMeasure);
-//      }
+      if (polylineMeasure !== undefined && polylineMeasure != null) {
+         if (map.hasLayer(polylineMeasure)) {
+            map.remove(polylineMeasure);
+            delete polylineMeasure;
+            polylineMeasure = null;
+            console.log("[polylineMeasure] removed");
+         } else
+            console.log("[polylineMeasure] trying to remove nonexistent layer");
+      }
    }
 }
 
 function toggle_offline_tools() {
    config.use_tile_cache = $('input#use_tile_cache').prop('checked');
+
    if (config.use_tile_cache) {
       offline_tools = L.control.savetiles(basemap, {
         // optional zoomlevels to save, default current zoomlevel
@@ -437,11 +516,14 @@ function toggle_tz() {
    }
 }
 
-
-function update_scale(unit) {
-   if (!scale_bar === undefined) {
-      map.removeLayer(scale_bar);
-   }
+function update_scale_bar(unit) {
+   if (scale_bar !== undefined && scale_bar != null) {
+      console.log("[scale_bar] removing old instance");
+      scale_bar.remove();
+      delete scale_bar;
+      scale_bar = null;
+   } else
+      console.log("[scale_bar] no existing instance found");
 
    if (unit.match('landmiles')) {
       console.log("[CONFIG] setting units to imperial");
@@ -449,22 +531,21 @@ function update_scale(unit) {
          metric: false,
          imperial: true
       });
-      scale_bar.addTo(map);
    } else if (unit.match('kilometres')) {
       console.log("[CONFIG] setting units to metric");
       scale_bar = L.control.betterscale({
          metric: true,
          imperial: false
       });
-      scale_bar.addTo(map);
    } else {
-      alert("Unknown scale unit: " + unit + ", cannot defaulting to imperial");
+      alert("Unknown scale unit: " + unit + ", defaulting to imperial");
       scale_bar = L.control.betterscale({
          metric: true,
          imperial: false
       });
-      scale_bar.addTo(map);
    }
+   scale_bar.addTo(map);
+   console.log("[scale_bar] created new instance with units " + unit);
 }
 
 function load_basemap() {
@@ -513,12 +594,18 @@ function update_all() {
    toggle_measuring();
    toggle_lit_earth();
 //   toggle_offline_tools();
+//   toggle_layer_switcher();
+   update_scale_bar(config.units);
    update_statusbar();
    toggle_tz();
 }
 
 function set_qth(coords) {
+   var convcoord = hgs.toLatLon(coords);
+
    console.log("[set_qth] ", coords, " called, parsing...");
+   console.log(convcoords);
+
    $('input#my_qth').val(coords);	// store into form
    config.my_qth = coords;
    // XXX: place a marker
@@ -559,7 +646,7 @@ function start_keymode() {
 
          if ($('input#my_qth').val() == '') {
             // Prompt for QTH
-            newqth = prompt('Enter QTH as decimal wgs-84 lat, long or [maidenhead]')
+            newqth = prompt('Enter QTH as decimal wgs-84 lat, long or maidenhead')
          } else {
             newqth = $('input#my_qth').val();
          }
@@ -574,15 +661,6 @@ function start_keymode() {
 }
 
 ////////////////////////////////
-function toggle_layer_switcher() {
-   // layer switcher control
-   const layer_switcher = L.control
-     .layers({
-       'osm (offline)': baseLayer,
-     }, null, { collapsed: false })
-     .addTo(map);
-   storageLayer(baseLayer, layer_switcher);
-}
 
 /*
 // events while saving a tile layer
@@ -612,7 +690,7 @@ $(document).ready(function() {
    load_settings();
    map = new L.map('rms-map', mapOptions);
 
-   var basemap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+   basemap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
       attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
    });
    basemap.addTo(map);
@@ -645,7 +723,9 @@ $(document).ready(function() {
    $('input#show_edge_markers').change(function() { toggle_edge_markers(); });
    $('input#show_lit_earth').change(function() { toggle_lit_earth(); });
    $('input#show_magnifier').change(function() { toggle_magnifier(); });
-   $('input#show_measuring').change(function() { toggle_measuring(); });
+   $('input#show_measuring').change(function() {
+      toggle_measuring();
+   });
    $('input#show_tz').change(function() { toggle_tz(); });
    $('input#use_tile_cache').change(function() {
 //      toggle_offline_tools($(this).prop('checked'));
@@ -674,6 +754,7 @@ $(document).ready(function() {
    load_basemap();
    change_layer($('select#mode').val());
    update_all();
+
    if (config.help_at_start)
       toggle_help();
 });
