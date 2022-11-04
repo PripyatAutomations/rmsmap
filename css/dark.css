@@ -24,9 +24,9 @@ a, a:hover, a:visited, a:active {
 }
 
 #toggle_menu {
-   color: yellow;
-   background: #505050;
-   border: 2px solid #909090;
+   color: cyan;
+   background: #3a3a3a;
+   border: 1px solid #1a1a1a;
    width: 3em;
 }
 
@@ -47,11 +47,17 @@ div#menu {
    border: 2px solid #505050 ;
    margin: 4px;
    position: fixed;
+   height: CALC(100% - 2.5em);
    left: 0.25em;
    top: 1.7em;
    z-index: 100000001;
    background: black;
    display: none;
+   overflow-y: scroll;
+/*
+   scrollbar-color: cyan;
+*/
+   scrollbar-width: thick;
 }
 
 div#rms-map {
@@ -76,6 +82,11 @@ div#status {
 div#helpcontainer {
    z-index: 200000000;
    position: absolute;
+   overflow-y: scroll;
+/* 
+   scrollbar-color: cyan;
+*/
+   scrollbar-width: thick;
    left: 1em;
    top: 1em;
    height: CALC(100% - 1.1em);
