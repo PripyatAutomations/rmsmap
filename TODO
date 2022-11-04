@@ -6,3 +6,5 @@
 * Show measure line from QTH to clicked marker
   - Add distance to dialog
   - Show predicted success rate on each band
+  - Make single point measuring the default
+  - Integrate with magnifier
